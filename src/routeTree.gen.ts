@@ -16,6 +16,7 @@ import { Route as SiteIndexRouteImport } from './routes/_site.index'
 import { Route as AdminSkillsRouteImport } from './routes/admin.skills'
 import { Route as AdminServicesRouteImport } from './routes/admin.services'
 import { Route as AdminProjectsRouteImport } from './routes/admin.projects'
+import { Route as AdminCertificatesRouteImport } from './routes/admin.certificates'
 import { Route as SiteSkillsRouteImport } from './routes/_site.skills'
 import { Route as SiteServicesRouteImport } from './routes/_site.services'
 import { Route as SiteResumeRouteImport } from './routes/_site.resume'
@@ -56,6 +57,11 @@ const AdminServicesRoute = AdminServicesRouteImport.update({
 const AdminProjectsRoute = AdminProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCertificatesRoute = AdminCertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
   getParentRoute: () => AdminRoute,
 } as any)
 const SiteSkillsRoute = SiteSkillsRouteImport.update({
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/resume': typeof SiteResumeRoute
   '/services': typeof SiteServicesRoute
   '/skills': typeof SiteSkillsRoute
+  '/admin/certificates': typeof AdminCertificatesRoute
   '/admin/projects': typeof AdminProjectsRoute
   '/admin/services': typeof AdminServicesRoute
   '/admin/skills': typeof AdminSkillsRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/resume': typeof SiteResumeRoute
   '/services': typeof SiteServicesRoute
   '/skills': typeof SiteSkillsRoute
+  '/admin/certificates': typeof AdminCertificatesRoute
   '/admin/projects': typeof AdminProjectsRoute
   '/admin/services': typeof AdminServicesRoute
   '/admin/skills': typeof AdminSkillsRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/_site/resume': typeof SiteResumeRoute
   '/_site/services': typeof SiteServicesRoute
   '/_site/skills': typeof SiteSkillsRoute
+  '/admin/certificates': typeof AdminCertificatesRoute
   '/admin/projects': typeof AdminProjectsRoute
   '/admin/services': typeof AdminServicesRoute
   '/admin/skills': typeof AdminSkillsRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/resume'
     | '/services'
     | '/skills'
+    | '/admin/certificates'
     | '/admin/projects'
     | '/admin/services'
     | '/admin/skills'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/resume'
     | '/services'
     | '/skills'
+    | '/admin/certificates'
     | '/admin/projects'
     | '/admin/services'
     | '/admin/skills'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/_site/resume'
     | '/_site/services'
     | '/_site/skills'
+    | '/admin/certificates'
     | '/admin/projects'
     | '/admin/services'
     | '/admin/skills'
@@ -242,6 +254,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/admin/projects'
       preLoaderRoute: typeof AdminProjectsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/certificates': {
+      id: '/admin/certificates'
+      path: '/certificates'
+      fullPath: '/admin/certificates'
+      preLoaderRoute: typeof AdminCertificatesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_site/skills': {
@@ -321,6 +340,7 @@ const SiteRouteChildren: SiteRouteChildren = {
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 
 interface AdminRouteChildren {
+  AdminCertificatesRoute: typeof AdminCertificatesRoute
   AdminProjectsRoute: typeof AdminProjectsRoute
   AdminServicesRoute: typeof AdminServicesRoute
   AdminSkillsRoute: typeof AdminSkillsRoute
@@ -328,6 +348,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminCertificatesRoute: AdminCertificatesRoute,
   AdminProjectsRoute: AdminProjectsRoute,
   AdminServicesRoute: AdminServicesRoute,
   AdminSkillsRoute: AdminSkillsRoute,
