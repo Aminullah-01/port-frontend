@@ -77,4 +77,3 @@ function Form({ value, onSave, onCancel }: { value: Certificate; onSave: (c: Cer
   );
 }
 
-export { CertsAdmin };
