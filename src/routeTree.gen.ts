@@ -17,6 +17,7 @@ import { Route as AdminSkillsRouteImport } from './routes/admin.skills'
 import { Route as AdminServicesRouteImport } from './routes/admin.services'
 import { Route as AdminResumeRouteImport } from './routes/admin.resume'
 import { Route as AdminProjectsRouteImport } from './routes/admin.projects'
+import { Route as AdminProfileRouteImport } from './routes/admin.profile'
 import { Route as AdminMessagesRouteImport } from './routes/admin.messages'
 import { Route as AdminCertificatesRouteImport } from './routes/admin.certificates'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
@@ -65,6 +66,11 @@ const AdminResumeRoute = AdminResumeRouteImport.update({
 const AdminProjectsRoute = AdminProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminMessagesRoute = AdminMessagesRouteImport.update({
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/admin/blog': typeof AdminBlogRoute
   '/admin/certificates': typeof AdminCertificatesRoute
   '/admin/messages': typeof AdminMessagesRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/projects': typeof AdminProjectsRoute
   '/admin/resume': typeof AdminResumeRoute
   '/admin/services': typeof AdminServicesRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/admin/blog': typeof AdminBlogRoute
   '/admin/certificates': typeof AdminCertificatesRoute
   '/admin/messages': typeof AdminMessagesRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/projects': typeof AdminProjectsRoute
   '/admin/resume': typeof AdminResumeRoute
   '/admin/services': typeof AdminServicesRoute
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/admin/blog': typeof AdminBlogRoute
   '/admin/certificates': typeof AdminCertificatesRoute
   '/admin/messages': typeof AdminMessagesRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/projects': typeof AdminProjectsRoute
   '/admin/resume': typeof AdminResumeRoute
   '/admin/services': typeof AdminServicesRoute
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/admin/blog'
     | '/admin/certificates'
     | '/admin/messages'
+    | '/admin/profile'
     | '/admin/projects'
     | '/admin/resume'
     | '/admin/services'
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/admin/blog'
     | '/admin/certificates'
     | '/admin/messages'
+    | '/admin/profile'
     | '/admin/projects'
     | '/admin/resume'
     | '/admin/services'
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/admin/blog'
     | '/admin/certificates'
     | '/admin/messages'
+    | '/admin/profile'
     | '/admin/projects'
     | '/admin/resume'
     | '/admin/services'
@@ -297,6 +309,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/admin/projects'
       preLoaderRoute: typeof AdminProjectsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/messages': {
@@ -400,6 +419,7 @@ interface AdminRouteChildren {
   AdminBlogRoute: typeof AdminBlogRoute
   AdminCertificatesRoute: typeof AdminCertificatesRoute
   AdminMessagesRoute: typeof AdminMessagesRoute
+  AdminProfileRoute: typeof AdminProfileRoute
   AdminProjectsRoute: typeof AdminProjectsRoute
   AdminResumeRoute: typeof AdminResumeRoute
   AdminServicesRoute: typeof AdminServicesRoute
@@ -411,6 +431,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBlogRoute: AdminBlogRoute,
   AdminCertificatesRoute: AdminCertificatesRoute,
   AdminMessagesRoute: AdminMessagesRoute,
+  AdminProfileRoute: AdminProfileRoute,
   AdminProjectsRoute: AdminProjectsRoute,
   AdminResumeRoute: AdminResumeRoute,
   AdminServicesRoute: AdminServicesRoute,
