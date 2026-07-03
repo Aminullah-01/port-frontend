@@ -47,7 +47,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </div>
         <nav className="flex-1 space-y-1 p-3">
           {items.map((it) => {
-            const active = it.exact ? pathname === it.url : pathname.startsWith(it.url);
+            const active = it.url === "/admin" ? pathname === it.url : pathname.startsWith(it.url);
             return (
               <Link key={it.url} to={it.url}
                 className={cn(
