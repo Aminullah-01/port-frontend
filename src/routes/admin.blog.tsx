@@ -1,0 +1,87 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { Plus, Trash2, Pencil } from "lucide-react";
+import { toast } from "sonner";
+import { AdminPageHeader } from "@/components/admin/admin-shell";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { usePortfolio } from "@/contexts/portfolio-context";
+import type { BlogPost } from "@/data/portfolio";
+
+export const Route = createFileRoute("/admin/blog")({
+  head: () => ({ meta: [{ title: "Blog — Admin" }] }),
+  component: BlogAdmin,
+});
+
+const empty: BlogPost = { id: "", title: "", slug: "", category: "General", tags: [], cover: "", excerpt: "", content: "", published: false, date: new Date().toISOString().slice(0, 10) };
+
+function BlogAdmin() {
+  const { blog, setBlog } = usePortfolio();
+  const [editing, setEditing] = useState<BlogPost | null>(null);
+
+  const save = (b: BlogPost) => {
+    const isNew = !b.id;
+    const item = isNew ? { ...b, id: String(Date.now()) } : b;
+    setBlog((prev) => isNew ? [item, ...prev] : prev.map((x) => x.id === b.id ? item : x));
+    toast.success("Saved"); setEditing(null);
+  };
+
+  return (
+    <div>
+      <AdminPageHeader title="Blog" description="Write and publish articles."
+        actions={<Button className="gap-2 bg-gradient-primary text-primary-foreground" onClick={() => setEditing({ ...empty })}><Plus className="h-4 w-4" />New post</Button>} />
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {blog.map((b) => (
+          <div key={b.id} className="overflow-hidden rounded-2xl border bg-card shadow-soft">
+            {b.cover && <img src={b.cover} alt="" className="aspect-video w-full object-cover" />}
+            <div className="p-4">
+              <div className="flex items-center gap-2 text-xs">
+                <Badge variant={b.published ? "default" : "outline"}>{b.published ? "Published" : "Draft"}</Badge>
+                <span className="text-muted-foreground">{b.date}</span>
+              </div>
+              <h3 className="mt-2 font-bold">{b.title}</h3>
+              <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{b.excerpt}</p>
+              <div className="mt-3 flex gap-1">
+                <Button size="sm" variant="outline" onClick={() => setEditing(b)}><Pencil className="h-3 w-3" /></Button>
+                <Button size="sm" variant="ghost" onClick={() => { setBlog((p) => p.filter((x) => x.id !== b.id)); toast.success("Deleted"); }}><Trash2 className="h-3 w-3" /></Button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader><DialogTitle>{editing?.id ? "Edit" : "New"} post</DialogTitle></DialogHeader>
+          {editing && <Form value={editing} onSave={save} onCancel={() => setEditing(null)} />}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function Form({ value, onSave, onCancel }: { value: BlogPost; onSave: (b: BlogPost) => void; onCancel: () => void }) {
+  const [f, setF] = useState(value);
+  const [tags, setTags] = useState(value.tags.join(", "));
+  return (
+    <div className="grid gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-2 sm:col-span-2"><Label>Title</Label><Input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value, slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") })} /></div>
+        <div className="space-y-2"><Label>Slug</Label><Input value={f.slug} onChange={(e) => setF({ ...f, slug: e.target.value })} /></div>
+        <div className="space-y-2"><Label>Category</Label><Input value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} /></div>
+        <div className="space-y-2 sm:col-span-2"><Label>Tags (comma-separated)</Label><Input value={tags} onChange={(e) => { setTags(e.target.value); setF({ ...f, tags: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) }); }} /></div>
+        <div className="space-y-2 sm:col-span-2"><Label>Cover image URL</Label><Input value={f.cover} onChange={(e) => setF({ ...f, cover: e.target.value })} /></div>
+        <div className="space-y-2 sm:col-span-2"><Label>Excerpt</Label><Textarea rows={2} value={f.excerpt} onChange={(e) => setF({ ...f, excerpt: e.target.value })} /></div>
+        <div className="space-y-2 sm:col-span-2"><Label>Content (Markdown)</Label><Textarea rows={6} value={f.content} onChange={(e) => setF({ ...f, content: e.target.value })} /></div>
+      </div>
+      <div className="flex items-center gap-2"><Switch checked={f.published} onCheckedChange={(v) => setF({ ...f, published: v })} /><Label>Published</Label></div>
+      <div className="flex justify-end gap-2"><Button variant="ghost" onClick={onCancel}>Cancel</Button><Button className="bg-gradient-primary text-primary-foreground" onClick={() => onSave(f)}>Save</Button></div>
+    </div>
+  );
+}
