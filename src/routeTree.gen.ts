@@ -15,6 +15,7 @@ import { Route as SiteSkillsRouteImport } from './routes/_site.skills'
 import { Route as SiteServicesRouteImport } from './routes/_site.services'
 import { Route as SiteResumeRouteImport } from './routes/_site.resume'
 import { Route as SiteProjectsRouteImport } from './routes/_site.projects'
+import { Route as SiteContactRouteImport } from './routes/_site.contact'
 import { Route as SiteCertificatesRouteImport } from './routes/_site.certificates'
 import { Route as SiteAboutRouteImport } from './routes/_site.about'
 
@@ -47,6 +48,11 @@ const SiteProjectsRoute = SiteProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteContactRoute = SiteContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteCertificatesRoute = SiteCertificatesRouteImport.update({
   id: '/certificates',
   path: '/certificates',
@@ -62,6 +68,7 @@ export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/about': typeof SiteAboutRoute
   '/certificates': typeof SiteCertificatesRoute
+  '/contact': typeof SiteContactRoute
   '/projects': typeof SiteProjectsRoute
   '/resume': typeof SiteResumeRoute
   '/services': typeof SiteServicesRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/about': typeof SiteAboutRoute
   '/certificates': typeof SiteCertificatesRoute
+  '/contact': typeof SiteContactRoute
   '/projects': typeof SiteProjectsRoute
   '/resume': typeof SiteResumeRoute
   '/services': typeof SiteServicesRoute
@@ -81,6 +89,7 @@ export interface FileRoutesById {
   '/_site': typeof SiteRouteWithChildren
   '/_site/about': typeof SiteAboutRoute
   '/_site/certificates': typeof SiteCertificatesRoute
+  '/_site/contact': typeof SiteContactRoute
   '/_site/projects': typeof SiteProjectsRoute
   '/_site/resume': typeof SiteResumeRoute
   '/_site/services': typeof SiteServicesRoute
@@ -93,6 +102,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/certificates'
+    | '/contact'
     | '/projects'
     | '/resume'
     | '/services'
@@ -101,6 +111,7 @@ export interface FileRouteTypes {
   to:
     | '/about'
     | '/certificates'
+    | '/contact'
     | '/projects'
     | '/resume'
     | '/services'
@@ -111,6 +122,7 @@ export interface FileRouteTypes {
     | '/_site'
     | '/_site/about'
     | '/_site/certificates'
+    | '/_site/contact'
     | '/_site/projects'
     | '/_site/resume'
     | '/_site/services'
@@ -166,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteProjectsRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/contact': {
+      id: '/_site/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof SiteContactRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/certificates': {
       id: '/_site/certificates'
       path: '/certificates'
@@ -186,6 +205,7 @@ declare module '@tanstack/react-router' {
 interface SiteRouteChildren {
   SiteAboutRoute: typeof SiteAboutRoute
   SiteCertificatesRoute: typeof SiteCertificatesRoute
+  SiteContactRoute: typeof SiteContactRoute
   SiteProjectsRoute: typeof SiteProjectsRoute
   SiteResumeRoute: typeof SiteResumeRoute
   SiteServicesRoute: typeof SiteServicesRoute
@@ -196,6 +216,7 @@ interface SiteRouteChildren {
 const SiteRouteChildren: SiteRouteChildren = {
   SiteAboutRoute: SiteAboutRoute,
   SiteCertificatesRoute: SiteCertificatesRoute,
+  SiteContactRoute: SiteContactRoute,
   SiteProjectsRoute: SiteProjectsRoute,
   SiteResumeRoute: SiteResumeRoute,
   SiteServicesRoute: SiteServicesRoute,
