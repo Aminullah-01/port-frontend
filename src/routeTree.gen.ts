@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as SiteIndexRouteImport } from './routes/_site.index'
 import { Route as SiteSkillsRouteImport } from './routes/_site.skills'
+import { Route as SiteProjectsRouteImport } from './routes/_site.projects'
 import { Route as SiteAboutRouteImport } from './routes/_site.about'
 
 const SiteRoute = SiteRouteImport.update({
@@ -28,6 +29,11 @@ const SiteSkillsRoute = SiteSkillsRouteImport.update({
   path: '/skills',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteProjectsRoute = SiteProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteAboutRoute = SiteAboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -37,10 +43,12 @@ const SiteAboutRoute = SiteAboutRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/about': typeof SiteAboutRoute
+  '/projects': typeof SiteProjectsRoute
   '/skills': typeof SiteSkillsRoute
 }
 export interface FileRoutesByTo {
   '/about': typeof SiteAboutRoute
+  '/projects': typeof SiteProjectsRoute
   '/skills': typeof SiteSkillsRoute
   '/': typeof SiteIndexRoute
 }
@@ -48,15 +56,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_site': typeof SiteRouteWithChildren
   '/_site/about': typeof SiteAboutRoute
+  '/_site/projects': typeof SiteProjectsRoute
   '/_site/skills': typeof SiteSkillsRoute
   '/_site/': typeof SiteIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/skills'
+  fullPaths: '/' | '/about' | '/projects' | '/skills'
   fileRoutesByTo: FileRoutesByTo
-  to: '/about' | '/skills' | '/'
-  id: '__root__' | '/_site' | '/_site/about' | '/_site/skills' | '/_site/'
+  to: '/about' | '/projects' | '/skills' | '/'
+  id:
+    | '__root__'
+    | '/_site'
+    | '/_site/about'
+    | '/_site/projects'
+    | '/_site/skills'
+    | '/_site/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -86,6 +101,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteSkillsRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/projects': {
+      id: '/_site/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof SiteProjectsRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/about': {
       id: '/_site/about'
       path: '/about'
@@ -98,12 +120,14 @@ declare module '@tanstack/react-router' {
 
 interface SiteRouteChildren {
   SiteAboutRoute: typeof SiteAboutRoute
+  SiteProjectsRoute: typeof SiteProjectsRoute
   SiteSkillsRoute: typeof SiteSkillsRoute
   SiteIndexRoute: typeof SiteIndexRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
   SiteAboutRoute: SiteAboutRoute,
+  SiteProjectsRoute: SiteProjectsRoute,
   SiteSkillsRoute: SiteSkillsRoute,
   SiteIndexRoute: SiteIndexRoute,
 }
