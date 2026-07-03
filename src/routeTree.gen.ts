@@ -14,6 +14,7 @@ import { Route as SiteRouteImport } from './routes/_site'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as SiteIndexRouteImport } from './routes/_site.index'
 import { Route as AdminSkillsRouteImport } from './routes/admin.skills'
+import { Route as AdminServicesRouteImport } from './routes/admin.services'
 import { Route as AdminProjectsRouteImport } from './routes/admin.projects'
 import { Route as SiteSkillsRouteImport } from './routes/_site.skills'
 import { Route as SiteServicesRouteImport } from './routes/_site.services'
@@ -45,6 +46,11 @@ const SiteIndexRoute = SiteIndexRouteImport.update({
 const AdminSkillsRoute = AdminSkillsRouteImport.update({
   id: '/skills',
   path: '/skills',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminServicesRoute = AdminServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminProjectsRoute = AdminProjectsRouteImport.update({
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/services': typeof SiteServicesRoute
   '/skills': typeof SiteSkillsRoute
   '/admin/projects': typeof AdminProjectsRoute
+  '/admin/services': typeof AdminServicesRoute
   '/admin/skills': typeof AdminSkillsRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/services': typeof SiteServicesRoute
   '/skills': typeof SiteSkillsRoute
   '/admin/projects': typeof AdminProjectsRoute
+  '/admin/services': typeof AdminServicesRoute
   '/admin/skills': typeof AdminSkillsRoute
   '/': typeof SiteIndexRoute
   '/admin': typeof AdminIndexRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/_site/services': typeof SiteServicesRoute
   '/_site/skills': typeof SiteSkillsRoute
   '/admin/projects': typeof AdminProjectsRoute
+  '/admin/services': typeof AdminServicesRoute
   '/admin/skills': typeof AdminSkillsRoute
   '/_site/': typeof SiteIndexRoute
   '/admin/': typeof AdminIndexRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/skills'
     | '/admin/projects'
+    | '/admin/services'
     | '/admin/skills'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/skills'
     | '/admin/projects'
+    | '/admin/services'
     | '/admin/skills'
     | '/'
     | '/admin'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/_site/services'
     | '/_site/skills'
     | '/admin/projects'
+    | '/admin/services'
     | '/admin/skills'
     | '/_site/'
     | '/admin/'
@@ -216,6 +228,13 @@ declare module '@tanstack/react-router' {
       path: '/skills'
       fullPath: '/admin/skills'
       preLoaderRoute: typeof AdminSkillsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/services': {
+      id: '/admin/services'
+      path: '/services'
+      fullPath: '/admin/services'
+      preLoaderRoute: typeof AdminServicesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/projects': {
@@ -303,12 +322,14 @@ const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 
 interface AdminRouteChildren {
   AdminProjectsRoute: typeof AdminProjectsRoute
+  AdminServicesRoute: typeof AdminServicesRoute
   AdminSkillsRoute: typeof AdminSkillsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminProjectsRoute: AdminProjectsRoute,
+  AdminServicesRoute: AdminServicesRoute,
   AdminSkillsRoute: AdminSkillsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
