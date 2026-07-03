@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const items = [
-  { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
+  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Projects", url: "/admin/projects", icon: FolderKanban },
   { title: "Skills", url: "/admin/skills", icon: Sparkles },
   { title: "Services", url: "/admin/services", icon: Wrench },
