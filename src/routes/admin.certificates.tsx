@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, Trash2, Pencil, Upload } from "lucide-react";
+import { Plus, Trash2, Pencil, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/admin-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { usePortfolio } from "@/contexts/portfolio-context";
+import { useCertificates, useCreateCertificate, useUpdateCertificate, useDeleteCertificate } from "@/hooks/use-certificates";
 import type { Certificate } from "@/data/portfolio";
 
 export const Route = createFileRoute("/admin/certificates")({
@@ -18,15 +18,56 @@ export const Route = createFileRoute("/admin/certificates")({
 const empty: Certificate = { id: "", title: "", organization: "", date: "", credentialUrl: "", image: "" };
 
 function CertsAdmin() {
-  const { certificates, setCertificates } = usePortfolio();
+  const { data: certificates = [], isLoading } = useCertificates();
+  const createMutation = useCreateCertificate();
+  const updateMutation = useUpdateCertificate();
+  const deleteMutation = useDeleteCertificate();
   const [editing, setEditing] = useState<Certificate | null>(null);
 
-  const save = (c: Certificate) => {
+  const save = async (c: any) => {
     const isNew = !c.id;
-    const item = isNew ? { ...c, id: String(Date.now()) } : c;
-    setCertificates((prev) => isNew ? [...prev, item] : prev.map((x) => x.id === c.id ? item : x));
-    toast.success("Saved"); setEditing(null);
+    const makeFd = () => {
+      const fd = new FormData();
+      fd.append("title", c.title);
+      fd.append("organization", c.organization || "");
+      fd.append("issue_date", c.date || "");
+      fd.append("credential_url", c.credentialUrl || "");
+      
+      if (c.imageFile) {
+        fd.append("image", c.imageFile);
+      } else if (c.image) {
+        fd.append("image", c.image);
+      }
+      
+      return fd;
+    };
+    try {
+      if (isNew) {
+        await createMutation.mutateAsync(makeFd());
+      } else {
+        const fd = makeFd();
+        fd.append("_method", "PUT");
+        await updateMutation.mutateAsync({ id: Number(c.id), data: fd });
+      }
+      toast.success("Saved");
+      setEditing(null);
+    } catch {
+      toast.error("Failed to save certificate");
+    }
   };
+
+  const remove = async (id: string) => {
+    try {
+      await deleteMutation.mutateAsync(Number(id));
+      toast.success("Deleted");
+    } catch {
+      toast.error("Failed to delete");
+    }
+  };
+
+  if (isLoading) {
+    return <div className="flex min-h-[400px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  }
 
   return (
     <div>
@@ -43,7 +84,7 @@ function CertsAdmin() {
               <p className="text-sm text-muted-foreground">{c.organization}</p>
               <div className="mt-3 flex gap-1">
                 <Button size="sm" variant="outline" onClick={() => setEditing(c)}><Pencil className="h-3 w-3" /></Button>
-                <Button size="sm" variant="ghost" onClick={() => { setCertificates((p) => p.filter((x) => x.id !== c.id)); toast.success("Deleted"); }}><Trash2 className="h-3 w-3" /></Button>
+                <Button size="sm" variant="ghost" onClick={() => remove(c.id)}><Trash2 className="h-3 w-3" /></Button>
               </div>
             </div>
           </div>
@@ -60,7 +101,7 @@ function CertsAdmin() {
   );
 }
 
-function Form({ value, onSave, onCancel }: { value: Certificate; onSave: (c: Certificate) => void; onCancel: () => void }) {
+function Form({ value, onSave, onCancel }: { value: any; onSave: (c: any) => void; onCancel: () => void }) {
   const [f, setF] = useState(value);
   return (
     <div className="grid gap-3">
@@ -70,7 +111,19 @@ function Form({ value, onSave, onCancel }: { value: Certificate; onSave: (c: Cer
         <div className="space-y-2"><Label>Date</Label><Input value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} /></div>
         <div className="space-y-2"><Label>Credential URL</Label><Input value={f.credentialUrl} onChange={(e) => setF({ ...f, credentialUrl: e.target.value })} /></div>
       </div>
-      <div className="space-y-2"><Label>Image URL</Label><Input value={f.image} onChange={(e) => setF({ ...f, image: e.target.value })} /></div>
+      <div className="space-y-2">
+        <Label>Certificate Image</Label>
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              setF({ ...f, imageFile: file, image: URL.createObjectURL(file) });
+            }
+          }}
+        />
+      </div>
       {f.image && <img src={f.image} alt="" className="aspect-video w-full rounded-lg object-cover" />}
       <div className="flex justify-end gap-2"><Button variant="ghost" onClick={onCancel}>Cancel</Button><Button className="bg-gradient-primary text-primary-foreground" onClick={() => onSave(f)}>Save</Button></div>
     </div>

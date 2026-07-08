@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Download, GraduationCap, Briefcase, Heart, Target, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FadeIn, SectionHeading } from "@/components/site/primitives";
-import { profile, education, experience } from "@/data/portfolio";
+import { education, experience } from "@/data/portfolio";
+import { useProfile } from "@/hooks/use-profile";
 
 export const Route = createFileRoute("/_site/about")({
   head: () => ({
@@ -15,6 +16,8 @@ export const Route = createFileRoute("/_site/about")({
 });
 
 function AboutPage() {
+  const { data: profile } = useProfile();
+  if (!profile) return null;
   return (
     <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
       <FadeIn><SectionHeading eyebrow="About me" title="Design-led. Engineering-minded." description={profile.bio} /></FadeIn>
@@ -74,7 +77,11 @@ function AboutPage() {
       </div>
 
       <div className="mt-12 flex flex-wrap justify-center gap-3">
-        <a href="/resume.pdf"><Button className="gap-2 bg-gradient-primary text-primary-foreground shadow-elegant"><Download className="h-4 w-4" />Download CV</Button></a>
+        <a href={profile.resume_url || "/resume.pdf"} download>
+          <Button className="gap-2 bg-gradient-primary text-primary-foreground shadow-elegant">
+            <Download className="h-4 w-4" />Download CV
+          </Button>
+        </a>
         <Link to="/contact"><Button variant="outline">Get in touch</Button></Link>
       </div>
     </div>

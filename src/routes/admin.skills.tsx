@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/admin-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { usePortfolio } from "@/contexts/portfolio-context";
+import { useSkills, useCreateSkill, useUpdateSkill, useDeleteSkill } from "@/hooks/use-skills";
 import type { Skill } from "@/data/portfolio";
 
 export const Route = createFileRoute("/admin/skills")({
@@ -18,16 +18,46 @@ export const Route = createFileRoute("/admin/skills")({
 const empty: Skill = { id: "", name: "", category: "Frontend", percentage: 80, color: "#8b5cf6", order: 0 };
 
 function SkillsAdmin() {
-  const { skills, setSkills } = usePortfolio();
+  const { data: skills = [], isLoading } = useSkills();
+  const createMutation = useCreateSkill();
+  const updateMutation = useUpdateSkill();
+  const deleteMutation = useDeleteSkill();
   const [editing, setEditing] = useState<Skill | null>(null);
 
-  const save = (s: Skill) => {
+  const save = async (s: Skill) => {
     const isNew = !s.id;
-    const item = isNew ? { ...s, id: String(Date.now()) } : s;
-    setSkills((prev) => isNew ? [...prev, item] : prev.map((x) => x.id === s.id ? item : x));
-    toast.success(isNew ? "Skill added" : "Skill updated");
-    setEditing(null);
+    const payload: Record<string, unknown> = {
+      name: s.name,
+      category: s.category,
+      percentage: s.percentage,
+      color: s.color,
+      display_order: s.order,
+    };
+    try {
+      if (isNew) {
+        await createMutation.mutateAsync(payload);
+      } else {
+        await updateMutation.mutateAsync({ id: Number(s.id), data: payload });
+      }
+      toast.success(isNew ? "Skill added" : "Skill updated");
+      setEditing(null);
+    } catch {
+      toast.error("Failed to save skill");
+    }
   };
+
+  const remove = async (id: string) => {
+    try {
+      await deleteMutation.mutateAsync(Number(id));
+      toast.success("Deleted");
+    } catch {
+      toast.error("Failed to delete");
+    }
+  };
+
+  if (isLoading) {
+    return <div className="flex min-h-[400px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  }
 
   return (
     <div>
@@ -55,7 +85,7 @@ function SkillsAdmin() {
                 <td className="p-3"><div className="h-6 w-6 rounded border" style={{ background: s.color }} /></td>
                 <td className="p-3 text-right">
                   <Button size="icon" variant="ghost" onClick={() => setEditing(s)}><Pencil className="h-4 w-4" /></Button>
-                  <Button size="icon" variant="ghost" onClick={() => { setSkills((p) => p.filter((x) => x.id !== s.id)); toast.success("Deleted"); }}><Trash2 className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => remove(s.id)}><Trash2 className="h-4 w-4" /></Button>
                 </td>
               </tr>
             ))}

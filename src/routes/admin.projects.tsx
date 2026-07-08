@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { Plus, Search, Trash2, Pencil, Star, LayoutGrid, List, Github, ExternalLink } from "lucide-react";
+import { Plus, Search, Trash2, Pencil, Star, LayoutGrid, List, Github, ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/admin-shell";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { usePortfolio } from "@/contexts/portfolio-context";
+import { useProjects, useCreateProject, useUpdateProject, useDeleteProject } from "@/hooks/use-projects";
 import type { Project } from "@/data/portfolio";
 import { cn } from "@/lib/utils";
 
@@ -26,8 +26,33 @@ const empty: Project = {
   status: "published", order: 0, tags: [],
 };
 
+function toProjectFormData(p: any): FormData {
+  const fd = new FormData();
+  fd.append("title", p.title);
+  fd.append("description", p.longDescription || p.description);
+  fd.append("category", p.category);
+  p.tech.forEach((t) => fd.append("technologies[]", t));
+  if (p.github) fd.append("github_url", p.github);
+  if (p.live) fd.append("live_url", p.live);
+  fd.append("featured", p.featured ? "1" : "0");
+  fd.append("status", p.status);
+  fd.append("display_order", String(p.order));
+
+  if (p.imageFile) {
+    fd.append("thumbnail", p.imageFile);
+  } else if (p.image) {
+    fd.append("thumbnail", p.image);
+  }
+
+  fd.append("_method", "PUT");
+  return fd;
+}
+
 function ProjectsAdmin() {
-  const { projects, setProjects } = usePortfolio();
+  const { data: projects = [], isLoading } = useProjects();
+  const createMutation = useCreateProject();
+  const updateMutation = useUpdateProject();
+  const deleteMutation = useDeleteProject();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("All");
   const [view, setView] = useState<"table" | "grid">("table");
@@ -47,19 +72,44 @@ function ProjectsAdmin() {
   const paged = filtered.slice((page - 1) * perPage, page * perPage);
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
 
-  const save = (p: Project) => {
+  const save = async (p: Project) => {
     const isNew = !p.id;
-    const item = isNew ? { ...p, id: String(Date.now()) } : p;
-    setProjects((prev) => isNew ? [item, ...prev] : prev.map((x) => x.id === p.id ? item : x));
-    toast.success(isNew ? "Project created" : "Project updated");
-    setEditing(null);
+    try {
+      if (isNew) {
+        const fd = toProjectFormData(p);
+        fd.delete("_method");
+        await createMutation.mutateAsync(fd);
+      } else {
+        const fd = toProjectFormData(p);
+        await updateMutation.mutateAsync({ id: Number(p.id), data: fd });
+      }
+      toast.success(isNew ? "Project created" : "Project updated");
+      setEditing(null);
+    } catch {
+      toast.error("Failed to save project");
+    }
   };
-  const remove = (id: string) => { setProjects((prev) => prev.filter((p) => p.id !== id)); toast.success("Deleted"); };
-  const removeBulk = () => {
-    setProjects((prev) => prev.filter((p) => !selected.has(p.id)));
-    toast.success(`${selected.size} deleted`);
-    setSelected(new Set());
+  const remove = async (id: string) => {
+    try {
+      await deleteMutation.mutateAsync(Number(id));
+      toast.success("Deleted");
+    } catch {
+      toast.error("Failed to delete");
+    }
   };
+  const removeBulk = async () => {
+    try {
+      await Promise.all(Array.from(selected).map((id) => deleteMutation.mutateAsync(Number(id))));
+      toast.success(`${selected.size} deleted`);
+      setSelected(new Set());
+    } catch {
+      toast.error("Failed to delete some items");
+    }
+  };
+
+  if (isLoading) {
+    return <div className="flex min-h-[400px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  }
 
   return (
     <div>
@@ -92,9 +142,13 @@ function ProjectsAdmin() {
                 cat === c ? "border-transparent bg-gradient-primary text-primary-foreground" : "hover:bg-muted")}>{c}</button>
           ))}
         </div>
-        <div className="ml-auto flex rounded-lg border">
-          <button onClick={() => setView("table")} className={cn("grid h-8 w-8 place-items-center rounded-l-lg", view === "table" && "bg-muted")}><List className="h-4 w-4" /></button>
-          <button onClick={() => setView("grid")} className={cn("grid h-8 w-8 place-items-center rounded-r-lg", view === "grid" && "bg-muted")}><LayoutGrid className="h-4 w-4" /></button>
+        <div className="ml-auto flex rounded-lg border p-0.5 bg-muted/30">
+          <Button variant="ghost" size="sm" onClick={() => setView("table")} className={cn("h-7 gap-1.5 px-2.5 text-xs font-medium rounded-md", view === "table" ? "bg-background shadow-sm" : "hover:bg-muted")}>
+            <List className="h-3.5 w-3.5" /> List
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setView("grid")} className={cn("h-7 gap-1.5 px-2.5 text-xs font-medium rounded-md", view === "grid" ? "bg-background shadow-sm" : "hover:bg-muted")}>
+            <LayoutGrid className="h-3.5 w-3.5" /> Grid
+          </Button>
         </div>
       </div>
 
@@ -162,15 +216,34 @@ function ProjectsAdmin() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {paged.map((p) => (
-            <div key={p.id} className="overflow-hidden rounded-2xl border bg-card shadow-soft">
-              <img src={p.image} alt={p.title} className="aspect-video w-full object-cover" />
+            <div key={p.id} className="group relative overflow-hidden rounded-2xl border bg-card shadow-soft transition-all hover:shadow-medium">
+              <div className="relative aspect-video w-full overflow-hidden">
+                <img src={p.image} alt={p.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                {p.featured && (
+                  <div className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-background/90 backdrop-blur-sm shadow-soft text-yellow-500">
+                    <Star className="h-4 w-4 fill-current" />
+                  </div>
+                )}
+                <div className="absolute left-3 top-3">
+                  <Badge variant={p.status === "published" ? "default" : "outline"} className="backdrop-blur-sm bg-background/80 shadow-sm border text-foreground">
+                    {p.status}
+                  </Badge>
+                </div>
+              </div>
               <div className="p-4">
-                <div className="text-xs text-primary">{p.category}</div>
-                <h3 className="mt-1 font-bold">{p.title}</h3>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <Badge variant="secondary" className="font-semibold text-primary">{p.category}</Badge>
+                  <span className="font-medium text-xs">Order: {p.order}</span>
+                </div>
+                <h3 className="mt-2 font-bold text-base line-clamp-1">{p.title}</h3>
                 <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>
-                <div className="mt-3 flex gap-1">
-                  <Button size="sm" variant="outline" className="gap-1" onClick={() => setEditing(p)}><Pencil className="h-3 w-3" />Edit</Button>
-                  <Button size="sm" variant="ghost" className="gap-1 text-destructive" onClick={() => setConfirmId(p.id)}><Trash2 className="h-3 w-3" />Delete</Button>
+                <div className="mt-4 flex gap-1.5">
+                  <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setEditing(p)}>
+                    <Pencil className="h-3.5 w-3.5" />Edit
+                  </Button>
+                  <Button size="sm" variant="ghost" className="gap-1.5 text-destructive hover:bg-destructive/10" onClick={() => setConfirmId(p.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />Delete
+                  </Button>
                 </div>
               </div>
             </div>
@@ -184,7 +257,7 @@ function ProjectsAdmin() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete project?</AlertDialogTitle>
-            <AlertDialogDescription>This can't be undone in this demo.</AlertDialogDescription>
+            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -212,7 +285,19 @@ function ProjectDialog({ open, project, onClose, onSave }: { open: boolean; proj
           <div className="space-y-2 sm:col-span-2"><Label>Short description</Label><Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
           <div className="space-y-2 sm:col-span-2"><Label>Long description</Label><Textarea rows={3} value={form.longDescription} onChange={(e) => setForm({ ...form, longDescription: e.target.value })} /></div>
           <div className="space-y-2"><Label>Category</Label><Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} /></div>
-          <div className="space-y-2"><Label>Image URL</Label><Input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} /></div>
+          <div className="space-y-2">
+            <Label>Project Image</Label>
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setForm({ ...form, imageFile: file, image: URL.createObjectURL(file) } as any);
+                }
+              }}
+            />
+          </div>
           <div className="space-y-2"><Label>GitHub URL</Label><Input value={form.github} onChange={(e) => setForm({ ...form, github: e.target.value })} /></div>
           <div className="space-y-2"><Label>Live URL</Label><Input value={form.live} onChange={(e) => setForm({ ...form, live: e.target.value })} /></div>
           <div className="space-y-2 sm:col-span-2"><Label>Tech (comma-separated)</Label>

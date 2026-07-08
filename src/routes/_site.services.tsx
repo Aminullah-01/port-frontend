@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Check } from "lucide-react";
 import { FadeIn, SectionHeading } from "@/components/site/primitives";
-import { usePortfolio } from "@/contexts/portfolio-context";
+import { useServices } from "@/hooks/use-services";
 
 export const Route = createFileRoute("/_site/services")({
   head: () => ({
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_site/services")({
 });
 
 function ServicesPage() {
-  const { services } = usePortfolio();
+  const { data: services = [] } = useServices();
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <FadeIn><SectionHeading eyebrow="Services" title="How I can help" description="Pick a service or blend them — every engagement is tailored." /></FadeIn>

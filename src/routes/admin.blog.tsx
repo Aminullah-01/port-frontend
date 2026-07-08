@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/admin-shell";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { usePortfolio } from "@/contexts/portfolio-context";
+import { useBlogPosts, useCreateBlogPost, useUpdateBlogPost, useDeleteBlogPost } from "@/hooks/use-blog";
 import type { BlogPost } from "@/data/portfolio";
 
 export const Route = createFileRoute("/admin/blog")({
@@ -20,16 +20,56 @@ export const Route = createFileRoute("/admin/blog")({
 
 const empty: BlogPost = { id: "", title: "", slug: "", category: "General", tags: [], cover: "", excerpt: "", content: "", published: false, date: new Date().toISOString().slice(0, 10) };
 
+function toBlogFormData(b: BlogPost): FormData {
+  const fd = new FormData();
+  fd.append("title", b.title);
+  fd.append("slug", b.slug);
+  fd.append("category", b.category);
+  fd.append("content", b.content);
+  fd.append("cover_image", b.cover);
+  fd.append("status", b.published ? "published" : "draft");
+  b.tags.forEach((t) => fd.append("tags[]", t));
+  fd.append("_method", "PUT");
+  return fd;
+}
+
 function BlogAdmin() {
-  const { blog, setBlog } = usePortfolio();
+  const { data: blog = [], isLoading } = useBlogPosts();
+  const createMutation = useCreateBlogPost();
+  const updateMutation = useUpdateBlogPost();
+  const deleteMutation = useDeleteBlogPost();
   const [editing, setEditing] = useState<BlogPost | null>(null);
 
-  const save = (b: BlogPost) => {
+  const save = async (b: BlogPost) => {
     const isNew = !b.id;
-    const item = isNew ? { ...b, id: String(Date.now()) } : b;
-    setBlog((prev) => isNew ? [item, ...prev] : prev.map((x) => x.id === b.id ? item : x));
-    toast.success("Saved"); setEditing(null);
+    try {
+      if (isNew) {
+        const fd = toBlogFormData(b);
+        fd.delete("_method");
+        await createMutation.mutateAsync(fd);
+      } else {
+        const fd = toBlogFormData(b);
+        await updateMutation.mutateAsync({ id: Number(b.id), data: fd });
+      }
+      toast.success("Saved");
+      setEditing(null);
+    } catch {
+      toast.error("Failed to save");
+    }
   };
+
+  const remove = async (id: string) => {
+    try {
+      await deleteMutation.mutateAsync(Number(id));
+      toast.success("Deleted");
+    } catch {
+      toast.error("Failed to delete");
+    }
+  };
+
+  if (isLoading) {
+    return <div className="flex min-h-[400px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  }
 
   return (
     <div>
@@ -49,7 +89,7 @@ function BlogAdmin() {
               <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{b.excerpt}</p>
               <div className="mt-3 flex gap-1">
                 <Button size="sm" variant="outline" onClick={() => setEditing(b)}><Pencil className="h-3 w-3" /></Button>
-                <Button size="sm" variant="ghost" onClick={() => { setBlog((p) => p.filter((x) => x.id !== b.id)); toast.success("Deleted"); }}><Trash2 className="h-3 w-3" /></Button>
+                <Button size="sm" variant="ghost" onClick={() => remove(b.id)}><Trash2 className="h-3 w-3" /></Button>
               </div>
             </div>
           </div>

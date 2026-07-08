@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useRouter } from "@tanstack/react-router";
 import {
   LayoutDashboard, FolderKanban, Sparkles, Wrench, Award, FileText,
   Inbox, PenSquare, User, Settings, LogOut, ChevronsLeft, Search, Bell, Sun, Moon,
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/theme-context";
-import { profile } from "@/data/portfolio";
+import { useAuth } from "@/contexts/auth-context";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuSeparator, DropdownMenuTrigger,
@@ -31,6 +31,14 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { theme, toggle } = useTheme();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    console.log('[ADMIN SHELL] Logout clicked');
+    await logout();
+    router.navigate({ to: "/" });
+  };
 
   return (
     <div className="flex min-h-screen bg-muted/30">
@@ -60,10 +68,13 @@ export function AdminShell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
-        <div className="border-t p-3">
+        <div className="border-t p-3 space-y-1">
           <Link to="/" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-sidebar-accent">
-            <LogOut className="h-4 w-4 shrink-0" />{!collapsed && <span>Exit admin</span>}
+            <LogOut className="h-4 w-4 shrink-0" />{!collapsed && <span>View site</span>}
           </Link>
+          <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-destructive hover:bg-sidebar-accent">
+            <LogOut className="h-4 w-4 shrink-0" />{!collapsed && <span>Logout</span>}
+          </button>
         </div>
       </aside>
 
@@ -84,17 +95,19 @@ export function AdminShell({ children }: { children: ReactNode }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 rounded-full border p-1 pr-3">
-                  <img src={profile.avatar} className="h-7 w-7 rounded-full bg-muted" alt="" />
-                  <span className="hidden text-sm font-medium sm:inline">{profile.name.split(" ")[0]}</span>
+                  <div className="grid h-7 w-7 place-items-center rounded-full bg-gradient-primary text-primary-foreground text-xs font-bold">
+                    {user?.name?.charAt(0) || 'A'}
+                  </div>
+                  <span className="hidden text-sm font-medium sm:inline">{user?.name?.split(" ")[0] || 'Admin'}</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>{profile.name}</DropdownMenuLabel>
+                <DropdownMenuLabel>{user?.name || 'Admin'}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild><Link to="/admin/profile">Profile</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link to="/admin/settings">Settings</Link></DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link to="/">Exit admin</Link></DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

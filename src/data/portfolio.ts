@@ -73,19 +73,20 @@ export type BlogPost = {
 
 export const profile = {
   name: "Aminu Gambo Abubakar",
-  titles: ["Frontend Developer", "UI/UX Designer", "AI Engineer", "Creative Problem Solver"],
+  titles: ["Frontend Developer", "Backend Developer", "Creative Problem Solver"],
   tagline: "Computer Science student crafting premium digital experiences.",
-  bio: "I design and build modern, accessible, and delightful web products. My work spans frontend engineering, visual design, and applied AI — bridging craft, code, and creativity.",
-  email: "hello@aminugambo.dev",
-  phone: "+234 800 000 0000",
-  location: "Kano, Nigeria",
+  bio: "I design and build modern, accessible, and delightful web products. My work spans frontend and backend engineering, and applied AI — bridging craft, code, and creativity.",
+  email: "aminugamboabubakar33@gmail.com",
+  phone: "+234 913 264 7360",
+  location: "Gombe, Nigeria",
   avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Aminu&backgroundColor=b6e3f4",
   socials: {
-    github: "https://github.com",
-    linkedin: "https://linkedin.com",
-    facebook: "https://facebook.com",
-    whatsapp: "https://wa.me/2348000000000",
-    email: "mailto:hello@aminugambo.dev",
+    github: "https://github.com/Aminullah-01",
+    linkedin: "https://linkedin.com/in/aminu-gambo-abubakar-073139340",
+    facebook: "https://www.facebook.com/ameenu.gabubakar.7/",
+    twitter: "https://x.com/Aminullah7360",
+    whatsapp: "https://wa.me/2349132647360",
+    email: "mailto:aminugamboabubakar33@gmail.com",
   },
   stats: [
     { label: "Projects", value: 42 },
@@ -96,14 +97,14 @@ export const profile = {
 };
 
 export const education = [
-  { year: "2022 — Present", title: "B.Sc. Computer Science", org: "Bayero University Kano" },
-  { year: "2020 — 2022", title: "Diploma, Software Engineering", org: "SkillHub Academy" },
+  { year: "2023 — Present", title: "B.Sc. Computer Science", org: "Gombe State University" },
+  //{ year: "2020 — 2022", title: "Diploma, Software Engineering", org: "SkillHub Academy" },
 ];
 
 export const experience = [
-  { year: "2024 — Present", title: "Freelance Frontend Developer", org: "Remote", detail: "Building premium SaaS interfaces for global clients." },
-  { year: "2023 — 2024", title: "UI/UX Designer", org: "Nova Studio", detail: "Led design systems and product design for fintech clients." },
-  { year: "2022 — 2023", title: "Graphic Designer", org: "Freelance", detail: "Brand identity and marketing collateral for startups." },
+  { year: "2025 — Present", title: "Freelance Frontend and Backend Developer", org: "Remote", detail: "Building premium SaaS interfaces for global clients." },
+ // { year: "2023 — 2024", title: "UI/UX Designer", org: "Nova Studio", detail: "Led design systems and product design for fintech clients." },
+ // { year: "2022 — 2023", title: "Graphic Designer", org: "Freelance", detail: "Brand identity and marketing collateral for startups." },
 ];
 
 export const skills: Skill[] = [
@@ -111,14 +112,14 @@ export const skills: Skill[] = [
   { id: "2", name: "TypeScript", category: "Frontend", percentage: 90, color: "#3178c6", order: 2 },
   { id: "3", name: "Next.js", category: "Frontend", percentage: 88, color: "#000", order: 3 },
   { id: "4", name: "Tailwind CSS", category: "Frontend", percentage: 96, color: "#06b6d4", order: 4 },
-  { id: "5", name: "Python", category: "Programming", percentage: 85, color: "#3776ab", order: 5 },
+  //{ id: "5", name: "Python", category: "Programming", percentage: 85, color: "#3776ab", order: 5 },
   { id: "6", name: "JavaScript", category: "Programming", percentage: 94, color: "#f7df1e", order: 6 },
-  { id: "7", name: "Figma", category: "UI/UX", percentage: 92, color: "#f24e1e", order: 7 },
-  { id: "8", name: "Adobe XD", category: "UI/UX", percentage: 85, color: "#ff61f6", order: 8 },
-  { id: "9", name: "Photoshop", category: "Graphic Design", percentage: 88, color: "#31a8ff", order: 9 },
-  { id: "10", name: "Illustrator", category: "Graphic Design", percentage: 82, color: "#ff9a00", order: 10 },
-  { id: "11", name: "TensorFlow", category: "AI", percentage: 78, color: "#ff6f00", order: 11 },
-  { id: "12", name: "PyTorch", category: "AI", percentage: 75, color: "#ee4c2c", order: 12 },
+  //{ id: "7", name: "Figma", category: "UI/UX", percentage: 92, color: "#f24e1e", order: 7 },
+  //{ id: "8", name: "Adobe XD", category: "UI/UX", percentage: 85, color: "#ff61f6", order: 8 },
+  //{ id: "9", name: "Photoshop", category: "Graphic Design", percentage: 88, color: "#31a8ff", order: 9 },
+  //{ id: "10", name: "Illustrator", category: "Graphic Design", percentage: 82, color: "#ff9a00", order: 10 },
+  //{ id: "11", name: "TensorFlow", category: "AI", percentage: 78, color: "#ff6f00", order: 11 },
+  //{ id: "12", name: "PyTorch", category: "AI", percentage: 75, color: "#ee4c2c", order: 12 },
   { id: "13", name: "Git", category: "Developer Tools", percentage: 90, color: "#f05032", order: 13 },
   { id: "14", name: "VS Code", category: "Developer Tools", percentage: 95, color: "#007acc", order: 14 },
 ];
@@ -126,8 +127,8 @@ export const skills: Skill[] = [
 export const skillCategories = [
   { name: "Frontend", icon: Code2 },
   { name: "Programming", icon: Layers },
-  { name: "UI/UX", icon: Palette },
-  { name: "Graphic Design", icon: Sparkles },
+  //{ name: "UI/UX", icon: Palette },
+  //{ name: "Graphic Design", icon: Sparkles },
   { name: "AI", icon: Brain },
   { name: "Developer Tools", icon: Wrench },
 ];

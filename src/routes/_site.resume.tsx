@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FadeIn, SectionHeading } from "@/components/site/primitives";
-import { profile, education, experience, skills } from "@/data/portfolio";
+import { education, experience } from "@/data/portfolio";
+import { useProfile } from "@/hooks/use-profile";
+import { useSkills } from "@/hooks/use-skills";
 
 export const Route = createFileRoute("/_site/resume")({
   head: () => ({
@@ -15,12 +17,15 @@ export const Route = createFileRoute("/_site/resume")({
 });
 
 function ResumePage() {
+  const { data: profile } = useProfile();
+  const { data: skills = [] } = useSkills();
+  if (!profile) return null;
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
       <FadeIn><SectionHeading eyebrow="CV" title="Resume" description="A quick overview — download the full PDF below." /></FadeIn>
 
       <div className="mt-8 flex justify-center">
-        <a href="/resume.pdf" download>
+        <a href={profile.resume_url || "/resume.pdf"} download>
           <Button size="lg" className="gap-2 bg-gradient-primary text-primary-foreground shadow-elegant">
             <Download className="h-4 w-4" />Download PDF
           </Button>

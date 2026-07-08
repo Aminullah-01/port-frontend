@@ -2,8 +2,9 @@ import { motion, useInView } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 export function SectionHeading({ eyebrow, title, description }: { eyebrow?: string; title: string; description?: string }) {
+  const isMultiline = description && description.includes("\n");
   return (
-    <div className="mx-auto max-w-2xl text-center">
+    <div className={`mx-auto ${isMultiline ? "max-w-3xl" : "max-w-2xl"} text-center`}>
       {eyebrow && (
         <div className="mb-4 inline-flex items-center rounded-full border bg-card/50 px-3 py-1 text-xs font-medium text-muted-foreground">
           {eyebrow}
@@ -12,7 +13,11 @@ export function SectionHeading({ eyebrow, title, description }: { eyebrow?: stri
       <h2 className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl">
         {title}
       </h2>
-      {description && <p className="mt-4 text-base text-muted-foreground sm:text-lg">{description}</p>}
+      {description && (
+        <p className={`mt-4 text-base text-muted-foreground sm:text-lg whitespace-pre-line ${isMultiline ? "text-left" : ""}`}>
+          {description}
+        </p>
+      )}
     </div>
   );
 }

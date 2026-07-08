@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { ExternalLink, X, Award } from "lucide-react";
 import { FadeIn, SectionHeading } from "@/components/site/primitives";
-import { usePortfolio } from "@/contexts/portfolio-context";
+import { useCertificates } from "@/hooks/use-certificates";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import type { Certificate } from "@/data/portfolio";
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_site/certificates")({
 });
 
 function CertificatesPage() {
-  const { certificates } = usePortfolio();
+  const { data: certificates = [] } = useCertificates();
   const [selected, setSelected] = useState<Certificate | null>(null);
 
   return (

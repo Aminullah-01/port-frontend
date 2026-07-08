@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, Trash2, Archive, Reply, Inbox as InboxIcon } from "lucide-react";
+import { Search, Trash2, Archive, Reply, Inbox as InboxIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/admin-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { usePortfolio } from "@/contexts/portfolio-context";
+import { useMessages, useDeleteMessage, useMarkAsRead } from "@/hooks/use-messages";
 import type { Message } from "@/data/portfolio";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,9 @@ export const Route = createFileRoute("/admin/messages")({
 });
 
 function MessagesAdmin() {
-  const { messages, setMessages } = usePortfolio();
+  const { data: messages = [], isLoading } = useMessages();
+  const deleteMutation = useDeleteMessage();
+  const markReadMutation = useMarkAsRead();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "unread" | "archived">("all");
   const [selected, setSelected] = useState<Message | null>(null);
@@ -28,7 +30,19 @@ function MessagesAdmin() {
     return m.subject.toLowerCase().includes(q.toLowerCase()) || m.name.toLowerCase().includes(q.toLowerCase());
   });
 
-  const patch = (id: string, p: Partial<Message>) => setMessages((prev) => prev.map((m) => m.id === id ? { ...m, ...p } : m));
+  const patch = async (id: string, p: Partial<Message>) => {
+    if (p.read) {
+      try {
+        await markReadMutation.mutateAsync(Number(id));
+      } catch {
+        // ignore read errors
+      }
+    }
+  };
+
+  if (isLoading) {
+    return <div className="flex min-h-[400px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  }
 
   return (
     <div>
@@ -79,7 +93,7 @@ function MessagesAdmin() {
                 </div>
                 <div className="flex gap-1">
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => { patch(selected.id, { archived: true }); toast.success("Archived"); setSelected(null); }}><Archive className="h-3 w-3" />Archive</Button>
-                  <Button size="sm" variant="ghost" className="gap-1 text-destructive" onClick={() => { setMessages((p) => p.filter((x) => x.id !== selected.id)); toast.success("Deleted"); setSelected(null); }}><Trash2 className="h-3 w-3" />Delete</Button>
+                  <Button size="sm" variant="ghost" className="gap-1 text-destructive" onClick={async () => { try { await deleteMutation.mutateAsync(Number(selected.id)); toast.success("Deleted"); setSelected(null); } catch { toast.error("Failed to delete"); } }}><Trash2 className="h-3 w-3" />Delete</Button>
                 </div>
               </div>
               <p className="mt-6 whitespace-pre-wrap text-sm leading-relaxed">{selected.message}</p>

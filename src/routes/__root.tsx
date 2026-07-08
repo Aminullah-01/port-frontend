@@ -7,7 +7,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "@/contexts/theme-context";
-import { PortfolioProvider } from "@/contexts/portfolio-context";
+import { AuthProvider } from "@/contexts/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -82,10 +82,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <PortfolioProvider>
+        <AuthProvider>
           <Outlet />
           <Toaster />
-        </PortfolioProvider>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

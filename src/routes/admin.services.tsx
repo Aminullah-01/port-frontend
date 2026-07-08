@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, Trash2, Pencil, Wrench } from "lucide-react";
+import { Plus, Trash2, Pencil, Wrench, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/admin-shell";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { usePortfolio } from "@/contexts/portfolio-context";
+import { useServices, useCreateService, useUpdateService, useDeleteService } from "@/hooks/use-services";
 import type { Service } from "@/data/portfolio";
 
 export const Route = createFileRoute("/admin/services")({
@@ -19,16 +19,46 @@ export const Route = createFileRoute("/admin/services")({
 const empty: Service = { id: "", title: "", description: "", icon: Wrench, features: [], order: 0 };
 
 function ServicesAdmin() {
-  const { services, setServices } = usePortfolio();
+  const { data: services = [], isLoading } = useServices();
+  const createMutation = useCreateService();
+  const updateMutation = useUpdateService();
+  const deleteMutation = useDeleteService();
   const [editing, setEditing] = useState<Service | null>(null);
 
-  const save = (s: Service) => {
+  const save = async (s: Service) => {
     const isNew = !s.id;
-    const item = isNew ? { ...s, id: String(Date.now()) } : s;
-    setServices((prev) => isNew ? [...prev, item] : prev.map((x) => x.id === s.id ? item : x));
-    toast.success("Saved");
-    setEditing(null);
+    const payload: Record<string, unknown> = {
+      title: s.title,
+      description: s.description,
+      features: s.features,
+      display_order: s.order,
+      icon: "code2",
+    };
+    try {
+      if (isNew) {
+        await createMutation.mutateAsync(payload);
+      } else {
+        await updateMutation.mutateAsync({ id: Number(s.id), data: payload });
+      }
+      toast.success("Saved");
+      setEditing(null);
+    } catch {
+      toast.error("Failed to save service");
+    }
   };
+
+  const remove = async (id: string) => {
+    try {
+      await deleteMutation.mutateAsync(Number(id));
+      toast.success("Deleted");
+    } catch {
+      toast.error("Failed to delete");
+    }
+  };
+
+  if (isLoading) {
+    return <div className="flex min-h-[400px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  }
 
   return (
     <div>
@@ -44,7 +74,7 @@ function ServicesAdmin() {
             <div className="mt-3 text-xs text-muted-foreground">{s.features.length} features · order {s.order}</div>
             <div className="mt-3 flex gap-1">
               <Button size="sm" variant="outline" onClick={() => setEditing(s)}><Pencil className="h-3 w-3" /></Button>
-              <Button size="sm" variant="ghost" onClick={() => { setServices((p) => p.filter((x) => x.id !== s.id)); toast.success("Deleted"); }}><Trash2 className="h-3 w-3" /></Button>
+              <Button size="sm" variant="ghost" onClick={() => remove(s.id)}><Trash2 className="h-3 w-3" /></Button>
             </div>
           </div>
         ))}

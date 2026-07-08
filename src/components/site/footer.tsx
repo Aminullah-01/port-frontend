@@ -1,9 +1,20 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUp } from "lucide-react";
-import { navLinks, socialLinks, profile } from "@/data/portfolio";
+import { Github, Linkedin, Facebook, Twitter, MessageCircle, Mail, ArrowUp, Loader2 } from "lucide-react";
+import { navLinks } from "@/data/portfolio";
 import { Button } from "@/components/ui/button";
+import { useProfile } from "@/hooks/use-profile";
 
 export function Footer() {
+  const { data: profile, isLoading } = useProfile();
+  if (isLoading || !profile) return null;
+  const socialLinks = [
+    { name: "GitHub", url: profile.socials.github, icon: Github },
+    { name: "LinkedIn", url: profile.socials.linkedin, icon: Linkedin },
+    { name: "Facebook", url: profile.socials.facebook, icon: Facebook },
+    { name: "Twitter", url: profile.socials.twitter, icon: Twitter },
+    { name: "WhatsApp", url: profile.socials.whatsapp, icon: MessageCircle },
+    { name: "Email", url: profile.socials.email, icon: Mail },
+  ].filter(s => s.url);
   return (
     <footer className="border-t bg-card/30">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-4 lg:px-8">

@@ -1,9 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FolderKanban, Sparkles, Award, Inbox, PenSquare, Eye, Download, Plus, TrendingUp } from "lucide-react";
+import { FolderKanban, Sparkles, Award, Inbox, PenSquare, Eye, Download, Plus, TrendingUp, Loader2 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, Bar, CartesianGrid } from "recharts";
 import { AdminPageHeader } from "@/components/admin/admin-shell";
 import { Button } from "@/components/ui/button";
-import { usePortfolio } from "@/contexts/portfolio-context";
+import { useProjects } from "@/hooks/use-projects";
+import { useSkills } from "@/hooks/use-skills";
+import { useCertificates } from "@/hooks/use-certificates";
+import { useMessages } from "@/hooks/use-messages";
+import { useBlogPosts } from "@/hooks/use-blog";
 import { Counter } from "@/components/site/primitives";
 
 export const Route = createFileRoute("/admin/")({
@@ -21,9 +25,13 @@ const categoryData = [
 ];
 
 function DashboardPage() {
-  const { projects, skills, certificates, messages, blog } = usePortfolio();
+  const { data: projects = [] } = useProjects();
+  const { data: skills = [] } = useSkills();
+  const { data: certificates = [] } = useCertificates();
+  const { data: messages = [] } = useMessages();
+  const { data: blog = [] } = useBlogPosts();
   const featuredCount = projects.filter((p) => p.featured).length;
-  const unread = messages.filter((m) => !m.read && !m.archived).length;
+  const unread = messages.filter((m: any) => !m.read && !m.archived).length;
 
   const stats = [
     { label: "Total Projects", value: projects.length, icon: FolderKanban },

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { FadeIn, SectionHeading } from "@/components/site/primitives";
-import { usePortfolio } from "@/contexts/portfolio-context";
+import { useProjects } from "@/hooks/use-projects";
 import type { Project } from "@/data/portfolio";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_site/projects")({
 });
 
 function ProjectsPage() {
-  const { projects } = usePortfolio();
+  const { data: projects = [] } = useProjects();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string>("All");
   const [sort, setSort] = useState<"latest" | "az">("latest");

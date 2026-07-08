@@ -1,15 +1,29 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowRight, Download, Mail, Github, Linkedin, Sparkles, Star } from "lucide-react";
+import { ArrowRight, Download, Mail, Github, Linkedin, Facebook, Twitter, MessageCircle, Sparkles, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedBackground, Counter, FadeIn, SectionHeading, TypingText } from "@/components/site/primitives";
-import { profile, projects, services, socialLinks } from "@/data/portfolio";
+import { useProfile } from "@/hooks/use-profile";
+import { useProjects } from "@/hooks/use-projects";
+import { useServices } from "@/hooks/use-services";
 
 export const Route = createFileRoute("/_site/")({
   component: HomePage,
 });
 
 function HomePage() {
+  const { data: profile } = useProfile();
+  const { data: projects = [] } = useProjects();
+  const { data: services = [] } = useServices();
+  if (!profile) return null;
+  const socialLinks = [
+    { name: "GitHub", url: profile.socials.github, icon: Github },
+    { name: "LinkedIn", url: profile.socials.linkedin, icon: Linkedin },
+    { name: "Facebook", url: profile.socials.facebook, icon: Facebook },
+    { name: "Twitter", url: profile.socials.twitter, icon: Twitter },
+    { name: "WhatsApp", url: profile.socials.whatsapp, icon: MessageCircle },
+    { name: "Email", url: profile.socials.email, icon: Mail },
+  ].filter(s => s.url);
   const featured = projects.filter((p) => p.featured).slice(0, 3);
   return (
     <>
@@ -47,7 +61,7 @@ function HomePage() {
                     View Projects <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                <a href="/resume.pdf">
+                <a href={profile.resume_url || "/resume.pdf"} download>
                   <Button size="lg" variant="outline" className="gap-2"><Download className="h-4 w-4" />Resume</Button>
                 </a>
                 <Link to="/contact">

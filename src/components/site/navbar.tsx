@@ -32,7 +32,7 @@ export function Navbar() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-primary text-primary-foreground font-black shadow-elegant">A</div>
-          <span className="hidden font-bold sm:inline">Aminu.dev</span>
+          <span className="hidden font-bold sm:inline">Aminullah.dev</span>
         </Link>
 
         <div className="hidden items-center gap-1 lg:flex">

@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Github, Linkedin, Facebook, Twitter, MessageCircle, Mail, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { FadeIn, SectionHeading } from "@/components/site/primitives";
-import { profile, socialLinks, contactInfo } from "@/data/portfolio";
-import { usePortfolio } from "@/contexts/portfolio-context";
+import { useProfile } from "@/hooks/use-profile";
+import { contactApi } from "@/api/endpoints";
 
 export const Route = createFileRoute("/_site/contact")({
   head: () => ({
@@ -21,22 +21,35 @@ export const Route = createFileRoute("/_site/contact")({
 });
 
 function ContactPage() {
-  const { setMessages } = usePortfolio();
+  const { data: profile } = useProfile();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  if (!profile) return null;
+  const contactInfo = [
+    { icon: Mail, label: "Email", value: profile.email },
+    { icon: MapPin, label: "Location", value: profile.location },
+  ];
+  const socialLinks = [
+    { name: "GitHub", url: profile.socials.github, icon: Github },
+    { name: "LinkedIn", url: profile.socials.linkedin, icon: Linkedin },
+    { name: "Facebook", url: profile.socials.facebook, icon: Facebook },
+    { name: "Twitter", url: profile.socials.twitter, icon: Twitter },
+    { name: "WhatsApp", url: profile.socials.whatsapp, icon: MessageCircle },
+    { name: "Email", url: profile.socials.email, icon: Mail },
+  ].filter(s => s.url);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setMessages((prev) => [
-        { id: String(Date.now()), ...form, date: new Date().toISOString().slice(0, 10), read: false, archived: false },
-        ...prev,
-      ]);
+    try {
+      await contactApi.send(form);
       toast.success("Message sent — I'll get back to you soon.");
       setForm({ name: "", email: "", subject: "", message: "" });
+    } catch {
+      toast.error("Failed to send message. Please try again.");
+    } finally {
       setLoading(false);
-    }, 900);
+    }
   };
 
   return (
