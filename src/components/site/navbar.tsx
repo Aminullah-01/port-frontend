@@ -57,9 +57,9 @@ export function Navbar() {
           <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme">
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
-          <Link to="/admin" className="hidden md:inline-flex">
+          {/* <Link to="/admin" className="hidden md:inline-flex">
             <Button variant="ghost" size="sm" className="gap-2"><LayoutDashboard className="h-4 w-4" />Admin</Button>
-          </Link>
+          </Link> */}
           <a href="/resume.pdf" className="hidden sm:inline-flex">
             <Button size="sm" className="gap-2 bg-gradient-primary text-primary-foreground shadow-elegant hover:opacity-90">
               <Download className="h-4 w-4" />Resume
