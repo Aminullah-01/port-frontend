@@ -35,7 +35,6 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   const handleLogout = async () => {
-    console.log('[ADMIN SHELL] Logout clicked');
     await logout();
     router.navigate({ to: "/" });
   };

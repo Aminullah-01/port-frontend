@@ -36,7 +36,6 @@ function ResumeAdmin() {
 
     const fd = new FormData();
     fd.append("resume", file);
-    fd.append("_method", "PUT");
 
     try {
       await updateMutation.mutateAsync(fd);

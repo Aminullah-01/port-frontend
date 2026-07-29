@@ -46,7 +46,6 @@ function CertsAdmin() {
         await createMutation.mutateAsync(makeFd());
       } else {
         const fd = makeFd();
-        fd.append("_method", "PUT");
         await updateMutation.mutateAsync({ id: Number(c.id), data: fd });
       }
       toast.success("Saved");

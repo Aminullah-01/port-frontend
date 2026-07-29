@@ -21,17 +21,13 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  console.log('[LOGIN] RENDER', { authLoading, isAuthenticated });
-
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      console.log('[LOGIN] already authenticated — navigating to /admin');
       navigate({ to: "/admin" });
     }
   }, [authLoading, isAuthenticated, navigate]);
 
   if (authLoading) {
-    console.log('[LOGIN] authLoading — showing spinner');
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -43,14 +39,11 @@ function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    console.log('[LOGIN] SUBMIT START', { email });
     try {
       await login(email, password);
-      console.log('[LOGIN] SUBMIT SUCCESS — navigating to /admin');
       toast.success("Welcome back!");
       navigate({ to: "/admin" });
     } catch (err: any) {
-      console.log('[LOGIN] SUBMIT ERROR', err.message);
       setError(err.message || "Invalid credentials");
     } finally {
       setLoading(false);

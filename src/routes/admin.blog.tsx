@@ -20,16 +20,19 @@ export const Route = createFileRoute("/admin/blog")({
 
 const empty: BlogPost = { id: "", title: "", slug: "", category: "General", tags: [], cover: "", excerpt: "", content: "", published: false, date: new Date().toISOString().slice(0, 10) };
 
-function toBlogFormData(b: BlogPost): FormData {
+function toBlogFormData(b: BlogPost & { coverFile?: File }): FormData {
   const fd = new FormData();
   fd.append("title", b.title);
   fd.append("slug", b.slug);
   fd.append("category", b.category);
   fd.append("content", b.content);
-  fd.append("cover_image", b.cover);
+  if (b.coverFile) {
+    fd.append("cover_image", b.coverFile);
+  } else if (b.cover) {
+    fd.append("cover_image", b.cover);
+  }
   fd.append("status", b.published ? "published" : "draft");
   b.tags.forEach((t) => fd.append("tags[]", t));
-  fd.append("_method", "PUT");
   return fd;
 }
 
@@ -40,12 +43,11 @@ function BlogAdmin() {
   const deleteMutation = useDeleteBlogPost();
   const [editing, setEditing] = useState<BlogPost | null>(null);
 
-  const save = async (b: BlogPost) => {
+  const save = async (b: BlogPost & { coverFile?: File }) => {
     const isNew = !b.id;
     try {
       if (isNew) {
         const fd = toBlogFormData(b);
-        fd.delete("_method");
         await createMutation.mutateAsync(fd);
       } else {
         const fd = toBlogFormData(b);
@@ -106,7 +108,7 @@ function BlogAdmin() {
   );
 }
 
-function Form({ value, onSave, onCancel }: { value: BlogPost; onSave: (b: BlogPost) => void; onCancel: () => void }) {
+function Form({ value, onSave, onCancel }: { value: BlogPost; onSave: (b: BlogPost & { coverFile?: File }) => void; onCancel: () => void }) {
   const [f, setF] = useState(value);
   const [tags, setTags] = useState(value.tags.join(", "));
   return (
@@ -116,7 +118,20 @@ function Form({ value, onSave, onCancel }: { value: BlogPost; onSave: (b: BlogPo
         <div className="space-y-2"><Label>Slug</Label><Input value={f.slug} onChange={(e) => setF({ ...f, slug: e.target.value })} /></div>
         <div className="space-y-2"><Label>Category</Label><Input value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} /></div>
         <div className="space-y-2 sm:col-span-2"><Label>Tags (comma-separated)</Label><Input value={tags} onChange={(e) => { setTags(e.target.value); setF({ ...f, tags: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) }); }} /></div>
-        <div className="space-y-2 sm:col-span-2"><Label>Cover image URL</Label><Input value={f.cover} onChange={(e) => setF({ ...f, cover: e.target.value })} /></div>
+        <div className="space-y-2 sm:col-span-2">
+          <Label>Cover image</Label>
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setF({ ...f, coverFile: file, cover: URL.createObjectURL(file) } as any);
+              }
+            }}
+          />
+          {f.cover && <img src={f.cover} alt="" className="mt-2 h-32 w-full rounded-lg object-cover" />}
+        </div>
         <div className="space-y-2 sm:col-span-2"><Label>Excerpt</Label><Textarea rows={2} value={f.excerpt} onChange={(e) => setF({ ...f, excerpt: e.target.value })} /></div>
         <div className="space-y-2 sm:col-span-2"><Label>Content (Markdown)</Label><Textarea rows={6} value={f.content} onChange={(e) => setF({ ...f, content: e.target.value })} /></div>
       </div>

@@ -31,7 +31,7 @@ function toProjectFormData(p: any): FormData {
   fd.append("title", p.title);
   fd.append("description", p.longDescription || p.description);
   fd.append("category", p.category);
-  p.tech.forEach((t) => fd.append("technologies[]", t));
+  p.tech.forEach((t: string) => fd.append("technologies[]", t));
   if (p.github) fd.append("github_url", p.github);
   if (p.live) fd.append("live_url", p.live);
   fd.append("featured", p.featured ? "1" : "0");
@@ -44,7 +44,6 @@ function toProjectFormData(p: any): FormData {
     fd.append("thumbnail", p.image);
   }
 
-  fd.append("_method", "PUT");
   return fd;
 }
 
@@ -77,7 +76,6 @@ function ProjectsAdmin() {
     try {
       if (isNew) {
         const fd = toProjectFormData(p);
-        fd.delete("_method");
         await createMutation.mutateAsync(fd);
       } else {
         const fd = toProjectFormData(p);

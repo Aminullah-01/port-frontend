@@ -17,7 +17,7 @@ export const Route = createFileRoute("/admin/profile")({
 function ProfileAdmin() {
   const { data: profile, isLoading } = useProfile();
   const updateMutation = useUpdateProfile();
-  const [f, setF] = useState(profile ?? null);
+  const [f, setF] = useState<((typeof profile) & { avatarFile?: File }) | null>(profile ?? null);
 
   useEffect(() => {
     if (profile && !f) setF(profile);
@@ -47,7 +47,6 @@ function ProfileAdmin() {
     if (f.socials.facebook) fd.append("facebook_url", f.socials.facebook);
     if (f.socials.twitter) fd.append("twitter_url", f.socials.twitter);
     if (f.socials.whatsapp) fd.append("whatsapp_url", f.socials.whatsapp);
-    fd.append("_method", "PUT");
     try {
       await updateMutation.mutateAsync(fd);
       toast.success("Profile updated");
