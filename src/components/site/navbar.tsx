@@ -7,12 +7,14 @@ import { useTheme } from "@/contexts/theme-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { analyticsApi } from "@/api/endpoints";
+import { useProfile } from "@/hooks/use-profile";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { theme, toggle } = useTheme();
+  const { data: profile } = useProfile();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -62,7 +64,10 @@ export function Navbar() {
             <Button variant="ghost" size="sm" className="gap-2"><LayoutDashboard className="h-4 w-4" />Admin</Button>
           </Link> */}
           <a
-            href="/resume.pdf"
+            href={profile?.resume_url || "/resume.pdf"}
+            target="_blank"
+            rel="noopener noreferrer"
+            download
             className="hidden sm:inline-flex"
             onClick={() => analyticsApi.trackCvDownload("/navbar-resume").catch(() => {})}
           >

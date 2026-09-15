@@ -43,6 +43,10 @@ function ResumeAdmin() {
     } catch (err: any) {
       const msg = err.errors?.resume?.[0] || err.message || "Failed to update resume";
       toast.error(msg);
+    } finally {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -50,7 +54,11 @@ function ResumeAdmin() {
   const fileName = resumeUrl
     ? resumeUrl.substring(resumeUrl.lastIndexOf("/") + 1)
     : "No resume uploaded";
-  const isPdf = resumeUrl?.toLowerCase().endsWith(".pdf");
+  const isPdf = Boolean(
+    resumeUrl &&
+      (resumeUrl.toLowerCase().includes(".pdf") ||
+        resumeUrl.toLowerCase().endsWith(".pdf")),
+  );
 
   return (
     <div>
