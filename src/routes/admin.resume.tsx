@@ -51,13 +51,18 @@ function ResumeAdmin() {
   };
 
   const resumeUrl = profile.resume_url;
-  const fileName = resumeUrl
-    ? resumeUrl.substring(resumeUrl.lastIndexOf("/") + 1)
-    : "No resume uploaded";
+  const resumeViewUrl = (profile as any).resume_view_url || resumeUrl;
+  const fileName =
+    (profile as any).resume_filename ||
+    (resumeUrl
+      ? resumeUrl.substring(resumeUrl.lastIndexOf("/") + 1)
+      : "No resume uploaded");
   const isPdf = Boolean(
-    resumeUrl &&
-      (resumeUrl.toLowerCase().includes(".pdf") ||
-        resumeUrl.toLowerCase().endsWith(".pdf")),
+    (profile as any).resume_mime?.includes("pdf") ||
+      fileName.toLowerCase().endsWith(".pdf") ||
+      (resumeUrl &&
+        (resumeUrl.toLowerCase().includes(".pdf") ||
+          resumeUrl.toLowerCase().endsWith(".pdf"))),
   );
 
   return (
@@ -110,7 +115,7 @@ function ResumeAdmin() {
             {resumeUrl ? (
               isPdf ? (
                 <iframe
-                  src={resumeUrl}
+                  src={resumeViewUrl}
                   className="w-full h-full rounded-xl border-none"
                   title="Resume Preview"
                 />

@@ -126,6 +126,10 @@ export function adaptProfile(p: ProfileData) {
     location: p.location || '',
     avatar: p.avatar || 'https://api.dicebear.com/9.x/avataaars/svg?seed=default',
     resume_url: p.resume_url || '',
+    resume_view_url: p.resume_view_url || p.resume_url || '',
+    resume_filename: p.resume_filename || '',
+    resume_mime: p.resume_mime || '',
+    resume_size: p.resume_size || null,
     socials: {
       github: p.github_url || 'https://github.com',
       linkedin: p.linkedin_url || 'https://linkedin.com',

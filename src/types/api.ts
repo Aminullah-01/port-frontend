@@ -39,6 +39,10 @@ export interface ProfileData {
   bio: string | null;
   avatar: string | null;
   resume_url: string | null;
+  resume_view_url?: string | null;
+  resume_filename?: string | null;
+  resume_mime?: string | null;
+  resume_size?: number | null;
   website: string | null;
   github_url: string | null;
   linkedin_url: string | null;
