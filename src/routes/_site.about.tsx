@@ -4,12 +4,16 @@ import { Button } from "@/components/ui/button";
 import { FadeIn, SectionHeading } from "@/components/site/primitives";
 import { education, experience } from "@/data/portfolio";
 import { useProfile } from "@/hooks/use-profile";
+import { analyticsApi } from "@/api/endpoints";
 
 export const Route = createFileRoute("/_site/about")({
   head: () => ({
     meta: [
       { title: "About — Aminu Gambo" },
-      { name: "description", content: "Learn about Aminu Gambo Abubakar — background, experience, and mission." },
+      {
+        name: "description",
+        content: "Learn about Aminu Gambo Abubakar — background, experience, and mission.",
+      },
     ],
   }),
   component: AboutPage,
@@ -20,13 +24,21 @@ function AboutPage() {
   if (!profile) return null;
   return (
     <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-      <FadeIn><SectionHeading eyebrow="About me" title="Design-led. Engineering-minded." description={profile.bio} /></FadeIn>
+      <FadeIn>
+        <SectionHeading
+          eyebrow="About me"
+          title="Design-led. Engineering-minded."
+          description={profile.bio}
+        />
+      </FadeIn>
 
       <div className="mt-16 grid gap-8 md:grid-cols-2">
         <FadeIn>
           <div className="rounded-2xl border bg-card p-6 shadow-soft">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary text-primary-foreground"><GraduationCap className="h-5 w-5" /></div>
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary text-primary-foreground">
+                <GraduationCap className="h-5 w-5" />
+              </div>
               <h3 className="text-lg font-bold">Education</h3>
             </div>
             <ul className="mt-6 space-y-4">
@@ -44,14 +56,18 @@ function AboutPage() {
         <FadeIn delay={0.1}>
           <div className="rounded-2xl border bg-card p-6 shadow-soft">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary text-primary-foreground"><Briefcase className="h-5 w-5" /></div>
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary text-primary-foreground">
+                <Briefcase className="h-5 w-5" />
+              </div>
               <h3 className="text-lg font-bold">Experience</h3>
             </div>
             <ul className="mt-6 space-y-4">
               {experience.map((e) => (
                 <li key={e.title} className="border-l-2 border-primary/40 pl-4">
                   <div className="text-xs font-medium text-primary">{e.year}</div>
-                  <div className="font-semibold">{e.title} · {e.org}</div>
+                  <div className="font-semibold">
+                    {e.title} · {e.org}
+                  </div>
                   <div className="text-sm text-muted-foreground">{e.detail}</div>
                 </li>
               ))}
@@ -62,9 +78,21 @@ function AboutPage() {
 
       <div className="mt-8 grid gap-6 md:grid-cols-3">
         {[
-          { icon: Target, title: "Mission", text: "Ship craft-forward products that people can't put down." },
-          { icon: Heart, title: "Values", text: "Curiosity, honesty, and a bias for making things simple." },
-          { icon: Compass, title: "Interests", text: "AI, motion design, systems, and open-source tooling." },
+          {
+            icon: Target,
+            title: "Mission",
+            text: "Ship craft-forward products that people can't put down.",
+          },
+          {
+            icon: Heart,
+            title: "Values",
+            text: "Curiosity, honesty, and a bias for making things simple.",
+          },
+          {
+            icon: Compass,
+            title: "Interests",
+            text: "AI, motion design, systems, and open-source tooling.",
+          },
         ].map((c, i) => (
           <FadeIn key={c.title} delay={i * 0.05}>
             <div className="h-full rounded-2xl border bg-card p-6 shadow-soft">
@@ -77,12 +105,19 @@ function AboutPage() {
       </div>
 
       <div className="mt-12 flex flex-wrap justify-center gap-3">
-        <a href={profile.resume_url || "/resume.pdf"} download>
+        <a
+          href={profile.resume_url || "/resume.pdf"}
+          download
+          onClick={() => analyticsApi.trackCvDownload("/about-cv").catch(() => {})}
+        >
           <Button className="gap-2 bg-gradient-primary text-primary-foreground shadow-elegant">
-            <Download className="h-4 w-4" />Download CV
+            <Download className="h-4 w-4" />
+            Download CV
           </Button>
         </a>
-        <Link to="/contact"><Button variant="outline">Get in touch</Button></Link>
+        <Link to="/contact">
+          <Button variant="outline">Get in touch</Button>
+        </Link>
       </div>
     </div>
   );

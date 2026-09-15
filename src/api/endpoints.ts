@@ -148,3 +148,17 @@ export const contactApi = {
     apiClient<ContactMessageData>(`/contact/${id}/read`, { method: "POST" }),
   delete: (id: number) => apiClient<null>(`/contact/${id}`, { method: "DELETE" }),
 };
+
+/* Analytics */
+export const analyticsApi = {
+  trackVisit: (page_url?: string) =>
+    apiClient<null>("/analytics/visit", {
+      method: "POST",
+      body: JSON.stringify({ page_url: page_url || "/" }),
+    }),
+  trackCvDownload: (page_url?: string) =>
+    apiClient<null>("/analytics/cv-download", {
+      method: "POST",
+      body: JSON.stringify({ page_url: page_url || "/resume" }),
+    }),
+};

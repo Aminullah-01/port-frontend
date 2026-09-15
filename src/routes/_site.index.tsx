@@ -1,11 +1,29 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowRight, Download, Mail, Github, Linkedin, Facebook, Twitter, MessageCircle, Sparkles, Star } from "lucide-react";
+import {
+  ArrowRight,
+  Download,
+  Mail,
+  Github,
+  Linkedin,
+  Facebook,
+  Twitter,
+  MessageCircle,
+  Sparkles,
+  Star,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AnimatedBackground, Counter, FadeIn, SectionHeading, TypingText } from "@/components/site/primitives";
+import {
+  AnimatedBackground,
+  Counter,
+  FadeIn,
+  SectionHeading,
+  TypingText,
+} from "@/components/site/primitives";
 import { useProfile } from "@/hooks/use-profile";
 import { useProjects } from "@/hooks/use-projects";
 import { useServices } from "@/hooks/use-services";
+import { analyticsApi } from "@/api/endpoints";
 
 export const Route = createFileRoute("/_site/")({
   component: HomePage,
@@ -23,7 +41,7 @@ function HomePage() {
     { name: "Twitter", url: profile.socials.twitter, icon: Twitter },
     { name: "WhatsApp", url: profile.socials.whatsapp, icon: MessageCircle },
     { name: "Email", url: profile.socials.email, icon: Mail },
-  ].filter(s => s.url);
+  ].filter((s) => s.url);
   const featured = projects.filter((p) => p.featured).slice(0, 3);
   return (
     <>
@@ -52,28 +70,49 @@ function HomePage() {
               </div>
             </FadeIn>
             <FadeIn delay={0.25}>
-              <p className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">{profile.bio}</p>
+              <p className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">
+                {profile.bio}
+              </p>
             </FadeIn>
             <FadeIn delay={0.35}>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link to="/projects">
-                  <Button size="lg" className="gap-2 bg-gradient-primary text-primary-foreground shadow-elegant hover:opacity-90">
+                  <Button
+                    size="lg"
+                    className="gap-2 bg-gradient-primary text-primary-foreground shadow-elegant hover:opacity-90"
+                  >
                     View Projects <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                <a href={profile.resume_url || "/resume.pdf"} download>
-                  <Button size="lg" variant="outline" className="gap-2"><Download className="h-4 w-4" />Resume</Button>
+                <a
+                  href={profile.resume_url || "/resume.pdf"}
+                  download
+                  onClick={() => analyticsApi.trackCvDownload("/hero-resume").catch(() => {})}
+                >
+                  <Button size="lg" variant="outline" className="gap-2">
+                    <Download className="h-4 w-4" />
+                    Resume
+                  </Button>
                 </a>
                 <Link to="/contact">
-                  <Button size="lg" variant="ghost" className="gap-2"><Mail className="h-4 w-4" />Contact</Button>
+                  <Button size="lg" variant="ghost" className="gap-2">
+                    <Mail className="h-4 w-4" />
+                    Contact
+                  </Button>
                 </Link>
               </div>
             </FadeIn>
             <FadeIn delay={0.5}>
               <div className="mt-8 flex gap-3">
                 {socialLinks.slice(0, 4).map((s) => (
-                  <a key={s.name} href={s.url} target="_blank" rel="noreferrer" aria-label={s.name}
-                    className="grid h-10 w-10 place-items-center rounded-xl border transition-all hover:border-primary hover:text-primary hover:-translate-y-0.5">
+                  <a
+                    key={s.name}
+                    href={s.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={s.name}
+                    className="grid h-10 w-10 place-items-center rounded-xl border transition-all hover:border-primary hover:text-primary hover:-translate-y-0.5"
+                  >
                     <s.icon className="h-4 w-4" />
                   </a>
                 ))}
@@ -90,7 +129,11 @@ function HomePage() {
               >
                 <div className="absolute -inset-4 rounded-full bg-gradient-primary opacity-40 blur-3xl" />
                 <div className="relative aspect-square w-64 overflow-hidden rounded-full border-4 border-primary/30 shadow-glow sm:w-80 lg:w-96">
-                  <img src={profile.avatar} alt={profile.name} className="h-full w-full object-cover bg-card" />
+                  <img
+                    src={profile.avatar}
+                    alt={profile.name}
+                    className="h-full w-full object-cover bg-card"
+                  />
                 </div>
               </motion.div>
               <motion.div
@@ -119,7 +162,9 @@ function HomePage() {
           <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 px-4 pb-20 sm:grid-cols-4 sm:px-6 lg:px-8">
             {profile.stats.map((s) => (
               <div key={s.label} className="glass rounded-2xl p-6 text-center">
-                <div className="text-3xl font-black text-gradient sm:text-4xl"><Counter to={s.value} suffix="+" /></div>
+                <div className="text-3xl font-black text-gradient sm:text-4xl">
+                  <Counter to={s.value} suffix="+" />
+                </div>
                 <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
               </div>
             ))}
@@ -129,13 +174,26 @@ function HomePage() {
 
       {/* Featured projects */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <FadeIn><SectionHeading eyebrow="Selected work" title="Featured projects" description="A glimpse of what I've been building lately." /></FadeIn>
+        <FadeIn>
+          <SectionHeading
+            eyebrow="Selected work"
+            title="Featured projects"
+            description="A glimpse of what I've been building lately."
+          />
+        </FadeIn>
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {featured.map((p, i) => (
             <FadeIn key={p.id} delay={i * 0.1}>
-              <Link to="/projects" className="group block overflow-hidden rounded-2xl border bg-card shadow-soft transition-all hover:-translate-y-1 hover:shadow-elegant">
+              <Link
+                to="/projects"
+                className="group block overflow-hidden rounded-2xl border bg-card shadow-soft transition-all hover:-translate-y-1 hover:shadow-elegant"
+              >
                 <div className="relative aspect-video overflow-hidden">
-                  <img src={p.image} alt={p.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img
+                    src={p.image}
+                    alt={p.title}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
                 </div>
                 <div className="p-6">
@@ -148,13 +206,23 @@ function HomePage() {
           ))}
         </div>
         <div className="mt-10 text-center">
-          <Link to="/projects"><Button variant="outline" className="gap-2">See all projects <ArrowRight className="h-4 w-4" /></Button></Link>
+          <Link to="/projects">
+            <Button variant="outline" className="gap-2">
+              See all projects <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </section>
 
       {/* Services preview */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <FadeIn><SectionHeading eyebrow="What I do" title="Services" description="From pixel-perfect interfaces to production code." /></FadeIn>
+        <FadeIn>
+          <SectionHeading
+            eyebrow="What I do"
+            title="Services"
+            description="From pixel-perfect interfaces to production code."
+          />
+        </FadeIn>
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {services.slice(0, 6).map((s, i) => (
             <FadeIn key={s.id} delay={i * 0.05}>
@@ -177,11 +245,36 @@ function HomePage() {
             <div className="absolute inset-0 bg-gradient-glow opacity-40" />
             <div className="relative">
               <h3 className="text-3xl font-black sm:text-4xl">Have a project in mind?</h3>
-              <p className="mx-auto mt-3 max-w-xl opacity-90">Let's build something people love to use.</p>
+              <p className="mx-auto mt-3 max-w-xl opacity-90">
+                Let's build something people love to use.
+              </p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <Link to="/contact"><Button size="lg" variant="secondary" className="gap-2"><Mail className="h-4 w-4" />Get in touch</Button></Link>
-                <a href={profile.socials.github} target="_blank" rel="noreferrer"><Button size="lg" variant="outline" className="gap-2 border-white/40 bg-white/10 text-primary-foreground hover:bg-white/20"><Github className="h-4 w-4" />GitHub</Button></a>
-                <a href={profile.socials.linkedin} target="_blank" rel="noreferrer"><Button size="lg" variant="outline" className="gap-2 border-white/40 bg-white/10 text-primary-foreground hover:bg-white/20"><Linkedin className="h-4 w-4" />LinkedIn</Button></a>
+                <Link to="/contact">
+                  <Button size="lg" variant="secondary" className="gap-2">
+                    <Mail className="h-4 w-4" />
+                    Get in touch
+                  </Button>
+                </Link>
+                <a href={profile.socials.github} target="_blank" rel="noreferrer">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="gap-2 border-white/40 bg-white/10 text-primary-foreground hover:bg-white/20"
+                  >
+                    <Github className="h-4 w-4" />
+                    GitHub
+                  </Button>
+                </a>
+                <a href={profile.socials.linkedin} target="_blank" rel="noreferrer">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="gap-2 border-white/40 bg-white/10 text-primary-foreground hover:bg-white/20"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                    LinkedIn
+                  </Button>
+                </a>
               </div>
             </div>
           </div>

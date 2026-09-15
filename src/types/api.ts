@@ -66,7 +66,7 @@ export interface ProjectData {
   category: string | null;
   thumbnail: string | null;
   featured: boolean;
-  status: 'draft' | 'published' | 'archived';
+  status: "draft" | "published" | "archived";
   github_url: string | null;
   live_url: string | null;
   display_order: number;
@@ -138,7 +138,7 @@ export interface BlogData {
   cover_image: string | null;
   content: string;
   category: string | null;
-  status: 'draft' | 'published';
+  status: "draft" | "published";
   tags: string[];
   created_at: string;
   updated_at: string;
@@ -159,6 +159,22 @@ export interface SettingData {
   updated_at: string;
 }
 
+export interface VisitorChartItem {
+  d: string;
+  date?: string;
+  v: number;
+}
+
+export interface CategoryDistributionItem {
+  name: string;
+  value: number;
+}
+
+export interface ActivityItem {
+  title: string;
+  time: string;
+}
+
 export interface DashboardData {
   total_projects: number;
   total_skills: number;
@@ -168,4 +184,10 @@ export interface DashboardData {
   total_blogs: number;
   unread_messages: number;
   featured_projects: number;
+  visitors_7d: number;
+  total_visitors: number;
+  cv_downloads: number;
+  visitor_chart: VisitorChartItem[];
+  category_distribution: CategoryDistributionItem[];
+  recent_activities: ActivityItem[];
 }

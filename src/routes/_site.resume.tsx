@@ -5,6 +5,7 @@ import { FadeIn, SectionHeading } from "@/components/site/primitives";
 import { education, experience } from "@/data/portfolio";
 import { useProfile } from "@/hooks/use-profile";
 import { useSkills } from "@/hooks/use-skills";
+import { analyticsApi } from "@/api/endpoints";
 
 export const Route = createFileRoute("/_site/resume")({
   head: () => ({
@@ -22,12 +23,26 @@ function ResumePage() {
   if (!profile) return null;
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-      <FadeIn><SectionHeading eyebrow="CV" title="Resume" description="A quick overview — download the full PDF below." /></FadeIn>
+      <FadeIn>
+        <SectionHeading
+          eyebrow="CV"
+          title="Resume"
+          description="A quick overview — download the full PDF below."
+        />
+      </FadeIn>
 
       <div className="mt-8 flex justify-center">
-        <a href={profile.resume_url || "/resume.pdf"} download>
-          <Button size="lg" className="gap-2 bg-gradient-primary text-primary-foreground shadow-elegant">
-            <Download className="h-4 w-4" />Download PDF
+        <a
+          href={profile.resume_url || "/resume.pdf"}
+          download
+          onClick={() => analyticsApi.trackCvDownload("/resume-pdf").catch(() => {})}
+        >
+          <Button
+            size="lg"
+            className="gap-2 bg-gradient-primary text-primary-foreground shadow-elegant"
+          >
+            <Download className="h-4 w-4" />
+            Download PDF
           </Button>
         </a>
       </div>
@@ -42,17 +57,23 @@ function ResumePage() {
                 <p className="opacity-90">{profile.titles.join(" · ")}</p>
               </div>
             </div>
-            <p className="mt-2 text-sm opacity-90">{profile.email} · {profile.location}</p>
+            <p className="mt-2 text-sm opacity-90">
+              {profile.email} · {profile.location}
+            </p>
           </header>
 
           <div className="grid gap-8 p-8 md:grid-cols-2">
             <section>
-              <h3 className="text-sm font-bold uppercase tracking-widest text-primary">Experience</h3>
+              <h3 className="text-sm font-bold uppercase tracking-widest text-primary">
+                Experience
+              </h3>
               <ul className="mt-4 space-y-4">
                 {experience.map((e) => (
                   <li key={e.title}>
                     <div className="font-semibold">{e.title}</div>
-                    <div className="text-sm text-muted-foreground">{e.org} · {e.year}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {e.org} · {e.year}
+                    </div>
                     <p className="mt-1 text-sm">{e.detail}</p>
                   </li>
                 ))}
@@ -60,20 +81,28 @@ function ResumePage() {
             </section>
 
             <section>
-              <h3 className="text-sm font-bold uppercase tracking-widest text-primary">Education</h3>
+              <h3 className="text-sm font-bold uppercase tracking-widest text-primary">
+                Education
+              </h3>
               <ul className="mt-4 space-y-4">
                 {education.map((e) => (
                   <li key={e.title}>
                     <div className="font-semibold">{e.title}</div>
-                    <div className="text-sm text-muted-foreground">{e.org} · {e.year}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {e.org} · {e.year}
+                    </div>
                   </li>
                 ))}
               </ul>
 
-              <h3 className="mt-8 text-sm font-bold uppercase tracking-widest text-primary">Top Skills</h3>
+              <h3 className="mt-8 text-sm font-bold uppercase tracking-widest text-primary">
+                Top Skills
+              </h3>
               <div className="mt-4 flex flex-wrap gap-1.5">
                 {skills.slice(0, 10).map((s) => (
-                  <span key={s.id} className="rounded-md bg-muted px-2 py-1 text-xs">{s.name}</span>
+                  <span key={s.id} className="rounded-md bg-muted px-2 py-1 text-xs">
+                    {s.name}
+                  </span>
                 ))}
               </div>
             </section>

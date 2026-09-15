@@ -6,6 +6,7 @@ import { navLinks } from "@/data/portfolio";
 import { useTheme } from "@/contexts/theme-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { analyticsApi } from "@/api/endpoints";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -15,40 +16,40 @@ export function Navbar() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
-    onScroll();
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => { setOpen(false); }, [pathname]);
-
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        scrolled ? "glass shadow-soft" : "bg-transparent"
+        "fixed top-0 left-0 right-0 z-40 transition-all duration-300",
+        scrolled ? "glass shadow-soft py-3" : "bg-transparent py-5",
       )}
     >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-primary text-primary-foreground font-black shadow-elegant">A</div>
-          <span className="hidden font-bold sm:inline">Aminullah.dev</span>
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-primary text-primary-foreground font-black text-base shadow-elegant group-hover:scale-105 transition-transform">
+            A
+          </div>
+          <span className="font-bold tracking-tight text-foreground">
+            Aminu<span className="text-primary">.</span>
+          </span>
         </Link>
 
-        <div className="hidden items-center gap-1 lg:flex">
+        <div className="hidden items-center gap-1 rounded-full border bg-card/60 backdrop-blur-md px-3 py-1.5 shadow-soft md:flex">
           {navLinks.map((l) => (
             <Link
               key={l.to}
               to={l.to}
               className={cn(
-                "rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:text-foreground",
-                pathname === l.to ? "text-foreground" : "text-muted-foreground"
+                "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+                pathname === l.to
+                  ? "bg-gradient-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {l.name}
-              {pathname === l.to && (
-                <motion.div layoutId="nav-underline" className="mx-3 -mt-1 h-0.5 rounded-full bg-gradient-primary" />
-              )}
             </Link>
           ))}
         </div>
@@ -60,12 +61,26 @@ export function Navbar() {
           {/* <Link to="/admin" className="hidden md:inline-flex">
             <Button variant="ghost" size="sm" className="gap-2"><LayoutDashboard className="h-4 w-4" />Admin</Button>
           </Link> */}
-          <a href="/resume.pdf" className="hidden sm:inline-flex">
-            <Button size="sm" className="gap-2 bg-gradient-primary text-primary-foreground shadow-elegant hover:opacity-90">
-              <Download className="h-4 w-4" />Resume
+          <a
+            href="/resume.pdf"
+            className="hidden sm:inline-flex"
+            onClick={() => analyticsApi.trackCvDownload("/navbar-resume").catch(() => {})}
+          >
+            <Button
+              size="sm"
+              className="gap-2 bg-gradient-primary text-primary-foreground shadow-elegant hover:opacity-90"
+            >
+              <Download className="h-4 w-4" />
+              Resume
             </Button>
           </a>
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen((v) => !v)} aria-label="Menu">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Menu"
+          >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
@@ -81,12 +96,22 @@ export function Navbar() {
           >
             <div className="flex flex-col gap-1 px-4 py-4">
               {navLinks.map((l) => (
-                <Link key={l.to} to={l.to} className={cn(
-                  "rounded-lg px-3 py-2 text-sm font-medium",
-                  pathname === l.to ? "bg-gradient-primary text-primary-foreground" : "hover:bg-muted"
-                )}>{l.name}</Link>
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  className={cn(
+                    "rounded-lg px-3 py-2 text-sm font-medium",
+                    pathname === l.to
+                      ? "bg-gradient-primary text-primary-foreground"
+                      : "hover:bg-muted",
+                  )}
+                >
+                  {l.name}
+                </Link>
               ))}
-              <Link to="/admin" className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">Admin Dashboard</Link>
+              <Link to="/admin" className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">
+                Admin Dashboard
+              </Link>
             </div>
           </motion.div>
         )}
