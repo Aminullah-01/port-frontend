@@ -34,7 +34,7 @@ function ResumePage() {
       <div className="mt-8 flex justify-center">
         <a
           href={profile.resume_url || "/resume.pdf"}
-          download
+          download={(profile as any).resume_filename || "Resume.docx"}
           onClick={() => analyticsApi.trackCvDownload("/resume-pdf").catch(() => {})}
         >
           <Button

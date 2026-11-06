@@ -116,6 +116,15 @@ export function adaptBlog(b: BlogData): BlogPost {
 }
 
 export function adaptProfile(p: ProfileData) {
+  const dataUri = (p as any).resume_data
+    ? `data:${(p as any).resume_mime || 'application/pdf'};base64,${(p as any).resume_data}`
+    : '';
+
+  const activeResumeUrl =
+    p.resume_url && p.resume_url.startsWith('http') && !p.resume_url.includes('.up.railway.app')
+      ? p.resume_url
+      : (dataUri || '/resume.pdf');
+
   return {
     name: p.full_name,
     titles: [p.headline || 'Developer'],
@@ -125,10 +134,10 @@ export function adaptProfile(p: ProfileData) {
     phone: p.phone || '',
     location: p.location || '',
     avatar: p.avatar || 'https://api.dicebear.com/9.x/avataaars/svg?seed=default',
-    resume_url: p.resume_url || '',
-    resume_view_url: p.resume_view_url || p.resume_url || '',
-    resume_filename: p.resume_filename || '',
-    resume_mime: p.resume_mime || '',
+    resume_url: activeResumeUrl,
+    resume_view_url: dataUri || activeResumeUrl,
+    resume_filename: p.resume_filename || 'Aminu_Gambo_Abubakar_s_CV.docx',
+    resume_mime: p.resume_mime || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     resume_size: p.resume_size || null,
     socials: {
       github: p.github_url || 'https://github.com',

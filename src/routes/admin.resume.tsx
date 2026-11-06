@@ -65,6 +65,16 @@ function ResumeAdmin() {
           resumeUrl.toLowerCase().endsWith(".pdf"))),
   );
 
+  const downloadFile = () => {
+    if (!resumeUrl) return;
+    const a = document.createElement("a");
+    a.href = resumeUrl;
+    a.download = fileName || "Resume.docx";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   return (
     <div>
       <input
@@ -83,9 +93,7 @@ function ResumeAdmin() {
               variant="outline"
               className="gap-2"
               disabled={!resumeUrl}
-              onClick={() => {
-                if (resumeUrl) window.open(resumeUrl, "_blank");
-              }}
+              onClick={downloadFile}
             >
               <Download className="h-4 w-4" />Download
             </Button>
@@ -127,7 +135,7 @@ function ResumeAdmin() {
                   <Button
                     variant="outline"
                     className="mt-4 gap-2"
-                    onClick={() => window.open(resumeUrl, "_blank")}
+                    onClick={downloadFile}
                   >
                     <Download className="h-4 w-4" />Download to View
                   </Button>

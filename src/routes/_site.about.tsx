@@ -107,7 +107,7 @@ function AboutPage() {
       <div className="mt-12 flex flex-wrap justify-center gap-3">
         <a
           href={profile.resume_url || "/resume.pdf"}
-          download
+          download={(profile as any).resume_filename || "Resume.docx"}
           onClick={() => analyticsApi.trackCvDownload("/about-cv").catch(() => {})}
         >
           <Button className="gap-2 bg-gradient-primary text-primary-foreground shadow-elegant">

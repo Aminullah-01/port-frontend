@@ -67,7 +67,7 @@ export function Navbar() {
             href={profile?.resume_url || "/resume.pdf"}
             target="_blank"
             rel="noopener noreferrer"
-            download
+            download={(profile as any)?.resume_filename || "Resume.docx"}
             className="hidden sm:inline-flex"
             onClick={() => analyticsApi.trackCvDownload("/navbar-resume").catch(() => {})}
           >

@@ -86,7 +86,7 @@ function HomePage() {
                 </Link>
                 <a
                   href={profile.resume_url || "/resume.pdf"}
-                  download
+                  download={(profile as any).resume_filename || "Resume.docx"}
                   onClick={() => analyticsApi.trackCvDownload("/hero-resume").catch(() => {})}
                 >
                   <Button size="lg" variant="outline" className="gap-2">

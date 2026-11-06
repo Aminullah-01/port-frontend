@@ -45,8 +45,9 @@ function ContactPage() {
       await contactApi.send(form);
       toast.success("Message sent — I'll get back to you soon.");
       setForm({ name: "", email: "", subject: "", message: "" });
-    } catch {
-      toast.error("Failed to send message. Please try again.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to send message. Please try again.";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
